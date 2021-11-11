@@ -1,6 +1,7 @@
 shortuuid==1.0.1
 wandb
 matplotlib
+pillow
 torch
 pytorch-lightning
 torchvision
