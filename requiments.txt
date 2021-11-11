@@ -1,0 +1,7 @@
+shortuuid==1.0.1
+wandb
+matplotlib
+torch
+torch-lightning
+torchvision
+torchmetricts
