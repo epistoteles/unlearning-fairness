@@ -4,4 +4,4 @@ matplotlib
 torch
 pytorch-lightning
 torchvision
-torchmetricts
+torchmetrics
