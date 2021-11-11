@@ -1,35 +1,17 @@
-
-! nvidia-smi
-
 import torch
 torch.set_printoptions(linewidth=120)
-
-from google.colab import drive, files
-drive.mount('/content/gdrive')
-!cp 'gdrive/My Drive/Colab Notebooks/Unlearning Fairness/UTKFaceDataset.py' '/content/UTKFaceDataset.py'
-![ -d UTKFace ] || tar -xvzf 'gdrive/My Drive/Colab Notebooks/Unlearning Fairness/UTKFace.tar.gz'
 
 from importlib import reload
 import UTKFaceDataset
 reload(UTKFaceDataset)
 from UTKFaceDataset import UTKFace
-import matplotlib.pyplot as plt
-
-%%capture
-! pip install --upgrade pip
-! pip install pytorch-lightning
-! pip install torchmetrics
-! pip install shortuuid==1.0.1
-! pip install wandb
 
 from torch import nn
-import pytorch_lightning as pl
 from pytorch_lightning import LightningModule
 import torch.nn.functional as F
 from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
 from torch.utils.data import random_split
-
 
 class AgeModel(LightningModule):
   def __init__(self):
@@ -115,8 +97,6 @@ class AgeModel(LightningModule):
 
 model = AgeModel()
 
-! wandb login
-
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning import Trainer
 
@@ -124,35 +104,3 @@ logger = WandbLogger(project="age-classifier", entity='epistoteles')
 trainer = Trainer(max_epochs=200, gpus=1, logger=logger, fast_dev_run=False)
 
 trainer.fit(model)
-
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import random
-# import torchvision.transforms.functional as F
-# from torchvision.utils import make_grid
-
-
-# dataset = UTKFace()  # only used for plotting, re-defined in model
-
-# plt.rcParams["savefig.bbox"] = 'tight'
-
-# def show(imgs):
-#     if not isinstance(imgs, list):
-#         imgs = [imgs]
-#     fix, axs = plt.subplots(ncols=len(imgs), squeeze=False, figsize=(15,3))
-#     for i, img in enumerate(imgs):
-#         img = img.detach()
-#         img = F.to_pil_image(img)
-#         axs[0, i].imshow(np.asarray(img))
-#         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
-        
-# faces = []
-# for i in range(7):
-#   faces.append(UTKFace.denormalize(dataset.__getitem__(random.randint(0,23700))[0]))
-
-# grid = make_grid(faces)
-# show(grid)
-
-# data = UTKFace()
-# x, y = data.__getitem__(0)
-# print(y)
