@@ -40,7 +40,7 @@ class AgeModel(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=list(range(2, 30, 2)), gamma=0.5)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=list(range(6, 30, 3)), gamma=0.3)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
