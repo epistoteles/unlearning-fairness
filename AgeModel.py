@@ -6,6 +6,7 @@ from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
 from UTKFaceDataset import UTKFace
 from torchvision import models
+import wandb
 
 
 class AgeModel(LightningModule):
@@ -63,7 +64,7 @@ class AgeModel(LightningModule):
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
         conf_matrix = ConfusionMatrix(num_classes=10, normalize='true')
-        self.log("train_acc", acc, prog_bar=True)
+        self.log("batch_acc", acc, prog_bar=True)
         return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
 
     def validation_step(self, batch, batch_idx):
@@ -84,14 +85,15 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace(label=self.label)
-        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
-
         # log hyperparams
         # self.log("label", self.label)  # can't log strings :(
-        self.log("initial_lr", self.initial_lr)
-        self.log("gamma", self.gamma)
-        self.log("num_target_classes", self.num_target_classes)
+        wandb.log("initial_lr", self.initial_lr)
+        wandb.log("gamma", self.gamma)
+        wandb.log("num_target_classes", self.num_target_classes)
+
+        # prepare and split dataset
+        data = UTKFace(label=self.label)
+        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
         train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
