@@ -18,11 +18,11 @@ class AgeModel(LightningModule):
 
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-6]
+        frozen_layers = list(backbone.children())[:-4]
         self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
 
         # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[4:-1]
+        trainable_layers = list(backbone.children())[6:-1]
         self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
 
         # add a custom fully connected layer at the end
