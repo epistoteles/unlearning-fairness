@@ -25,6 +25,9 @@ class AgeModel(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
+        # log hyperparams
+        self.save_hyperparameters()
+
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
         frozen_layers = list(backbone.children())[:-4]
@@ -85,13 +88,6 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        # log hyperparams
-        # self.log("label", self.label)  # can't log strings :(
-        wandb.log("initial_lr", self.initial_lr)
-        wandb.log("gamma", self.gamma)
-        wandb.log("num_target_classes", self.num_target_classes)
-
-        # prepare and split dataset
         data = UTKFace(label=self.label)
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
