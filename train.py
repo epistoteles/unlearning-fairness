@@ -23,19 +23,28 @@ class AgeModel(LightningModule):
 
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
-        num_filters = backbone.fc.in_features
-        layers = list(backbone.children())[:-1]
-        self.feature_extractor = nn.Sequential(*layers)
+        frozen_layers = list(backbone.children())[:-3]
+        self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
 
-        # use the pretrained model to classify cifar-10 (10 image classes)
+        # use the last 8 blocks with trainable parameters
+        trainable_layers = list(backbone.children())[7:-1]
+        self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
+
+        # add a custom fully connected layer at the end
+        num_filters = backbone.fc.in_features
         num_target_classes = 2
         self.classifier = nn.Linear(num_filters, num_target_classes)
+
+        # filled in setup()
+        self.train_data = None
+        self.val_data = None
 
     def forward(self, x):
         self.feature_extractor.eval()
         with torch.no_grad():
-            representations = self.feature_extractor(x).flatten(1)
-        x = self.classifier(representations)
+            frozen_representations = self.frozen_feature_extractor(x)
+        learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
+        x = self.classifier(learned_representations)
         return x
 
     def configure_optimizers(self):
@@ -73,14 +82,13 @@ class AgeModel(LightningModule):
     def setup(self, stage):
         data = UTKFace()
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
-        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
-        train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=256, num_workers=4)
+        train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=64, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
-        val_loader = torch.utils.data.DataLoader(self.val_data, batch_size=256, num_workers=4)
+        val_loader = torch.utils.data.DataLoader(self.val_data, batch_size=512, num_workers=4)
         return val_loader
 
 

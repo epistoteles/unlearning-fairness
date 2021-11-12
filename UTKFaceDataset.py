@@ -18,8 +18,8 @@ class UTKFace(Dataset):
                           isfile(join(image_dir, f)) and
                           len(f.split('_')) == 4 and  # wrong names
                           f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
-                                    '1_0_0_20170109194120301.jpg.chip.jpg'} and  # damaged 👀
-                          (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
+                                    '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
+                          # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
         self.images = []
         self.ages = list(map(lambda x: int(x.split('_')[0]), self.filenames))
