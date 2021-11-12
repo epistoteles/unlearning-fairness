@@ -27,11 +27,11 @@ class AgeModel(LightningModule):
         self.conv3 = nn.Conv2d(256, 384, 3, stride=1, padding=1)
         self.pool3 = nn.MaxPool2d(3, stride=2, padding=1)
         self.norm3 = nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75)
-        self.fc1 = nn.Linear(1, 512)  # 10 classes: (18816, 512)
+        self.fc1 = nn.Linear(18816, 512)
         self.dropout1 = nn.Dropout(0.5)
         self.fc2 = nn.Linear(512, 512)
         self.dropout2 = nn.Dropout(0.5)
-        self.fc3 = nn.Linear(512, 10)
+        self.fc3 = nn.Linear(512, 2)
 
     def forward(self, x):
         x = F.leaky_relu(self.conv1(x))
