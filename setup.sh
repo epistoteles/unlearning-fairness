@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install prerequisites
-sudo apt-get install git screen htop python3-pip libjpeg-dev zlib1g-dev -y
+sudo apt-get install git screen htop nvtop python3-pip libjpeg-dev zlib1g-dev -y
 
 # mount bucket with UTKFace dataset
 export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`

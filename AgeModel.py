@@ -71,7 +71,7 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace()
+        data = UTKFace(label='gender')
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):

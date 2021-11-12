@@ -60,23 +60,19 @@ class UTKFace(Dataset):
             label = self.races[index]
 
         # only needed for training
-        augment = transforms.Compose([
+        transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(brightness=0.1, contrast=0.2, saturation=0.1, hue=0.0),
             transforms.RandomAffine(degrees=15, translate=None, scale=(0.9, 1.2), shear=10, fill=128),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
-        ])
-
-        # needed for inference
-        transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             transforms.Lambda(lambda x: x + torch.tensor(0.05, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
         ])
 
-        return transform(augment(image)), label
+        return transform(image), label
 
     @staticmethod
     def denormalize(image):
