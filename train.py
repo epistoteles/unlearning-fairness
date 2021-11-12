@@ -27,7 +27,7 @@ class AgeModel(LightningModule):
         self.conv3 = nn.Conv2d(256, 384, 3, stride=1, padding=1)
         self.pool3 = nn.MaxPool2d(3, stride=2, padding=1)
         self.norm3 = nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75)
-        self.fc1 = nn.Linear(18816, 512)
+        self.fc1 = nn.Linear(1, 512)  # 10 classes: (18816, 512)
         self.dropout1 = nn.Dropout(0.5)
         self.fc2 = nn.Linear(512, 512)
         self.dropout2 = nn.Dropout(0.5)
@@ -86,14 +86,14 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        # data = UTKFace()
-        # self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
-        data = MNIST(root='.',
-                     download=True,
-                     transform=transforms.Compose([transforms.Resize((227, 227)),
-                                                   transforms.Grayscale(3),
-                                                   transforms.ToTensor()
-                                                   ]))
+        data = UTKFace()
+        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
+        # data = MNIST(root='.',
+        #              download=True,
+        #              transform=transforms.Compose([transforms.Resize((227, 227)),
+        #                                            transforms.Grayscale(3),
+        #                                            transforms.ToTensor()
+        #                                            ]))
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
