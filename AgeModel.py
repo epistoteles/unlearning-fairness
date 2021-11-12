@@ -23,7 +23,7 @@ class AgeModel(LightningModule):
 
         # add a custom fully connected layer at the end
         num_filters = backbone.fc.in_features
-        num_target_classes = 2
+        num_target_classes = 10
         self.classifier = nn.Linear(num_filters, num_target_classes)
 
         # filled in setup()
@@ -71,7 +71,7 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace(label='gender')
+        data = UTKFace(label='age')
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):

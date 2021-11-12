@@ -15,6 +15,7 @@ mkdir data
 gcsfuse utkface ./data
 mkdir UTKFace
 tar -xvzf 'data/UTKFace.tar.gz' -C ./
+rm /data
 
 # clone code repository
 git clone https://epistoteles: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@github.com/epistoteles/unlearning-fairness.git
