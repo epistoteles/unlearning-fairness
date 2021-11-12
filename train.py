@@ -9,6 +9,9 @@ from UTKFaceDataset import UTKFace
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning import Trainer
 
+from torchvision.datasets import MNIST
+from torchvision import transforms
+
 torch.set_printoptions(linewidth=120)
 
 
@@ -83,8 +86,10 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace()
-        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
+        # data = UTKFace()
+        # self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
+        data = MNIST(transform=transforms.Resize((227, 227)))
+        self.train_data, self.val_data = random_split(data, [len(data) - 2000, 2000])
 
     def train_dataloader(self):
         train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=256)
