@@ -25,7 +25,7 @@ class AgeModel(LightningModule):
             self.num_target_classes = 2
 
         # log hyperparams
-        self.log("label", self.label)
+        # self.log("label", self.label)  # can't log strings :(
         self.log("initial_lr", self.lr)
         self.log("gamma", self.gamma)
         self.log("num_target_classes", self.num_target_classes)
