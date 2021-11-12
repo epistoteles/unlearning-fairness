@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install prerequisites
-sudo apt-get install git htop python3-pip libjpeg-dev zlib1g-dev wandb -y
+sudo apt-get install git screen htop python3-pip libjpeg-dev zlib1g-dev wandb -y
 
 # mount bucket with UTKFace dataset
 export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
@@ -30,6 +30,7 @@ pip3 install -r requirements.txt
 # install cuda
 curl https://raw.githubusercontent.com/GoogleCloudPlatform/compute-gpu-installation/main/linux/install_gpu_driver.py --output install_gpu_driver.py
 sudo python3 install_gpu_driver.py
+rm install_gpu_driver.py
 
 # wandb login
 python3 -m wandb login

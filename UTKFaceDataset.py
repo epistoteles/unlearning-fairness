@@ -63,7 +63,7 @@ class UTKFace(Dataset):
             transforms.RandomAffine(degrees=15, translate=None, scale=(0.9, 1.2), shear=10, fill=0),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
-            transforms.Resize((224, 224)),  # old: 227
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
             # transforms.Normalize(mean=[152.01048, 116.37661, 99.60926], std=[32.09281, 29.17887, 30.77170]),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -75,7 +75,7 @@ class UTKFace(Dataset):
     def denormalize(image):
         """Undoes the normalization transform for viewing and plotting"""
         denorm = transforms.Compose([
-            transforms.Normalize(mean=[0., 0., 0.], std=[1 / 32.09281, 1 / 29.17887, 1 / 30.77170]),
-            transforms.Normalize(mean=[-152.01048, -116.37661, -99.60926], std=[1., 1., 1.])
+            transforms.Normalize(mean=[0., 0., 0.], std=[1/0.229, 1/0.224, 1/0.225]),
+            transforms.Normalize(mean=[-0.485, -0.456, -0.406], std=[1., 1., 1.])
         ])
         return denorm(image)
