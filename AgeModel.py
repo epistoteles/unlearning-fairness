@@ -12,6 +12,24 @@ class AgeModel(LightningModule):
     def __init__(self):
         super().__init__()
 
+        # set hyperparams
+        self.label = 'age'
+        self.initial_lr = 1e-4
+        self.milestones = list(range(2, 30, 2))
+        self.gamma = 0.5
+        if self.label == 'age':
+            self.num_target_classes = 10
+        elif self.label == 'race':
+            self.num_target_classes = 5
+        elif self.label == 'gender':
+            self.num_target_classes = 2
+
+        # log hyperparams
+        self.log("label", self.label)
+        self.log("initial_lr", self.lr)
+        self.log("gamma", self.gamma)
+        self.log("num_target_classes", self.num_target_classes)
+
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
         frozen_layers = list(backbone.children())[:-4]
@@ -23,8 +41,8 @@ class AgeModel(LightningModule):
 
         # add a custom fully connected layer at the end
         num_filters = backbone.fc.in_features
-        num_target_classes = 10
-        self.classifier = nn.Linear(num_filters, num_target_classes)
+        self.dropout = nn.Dropout(0.5)
+        self.classifier = nn.Linear(num_filters, self.num_target_classes)
 
         # filled in setup()
         self.train_data = None
@@ -35,12 +53,13 @@ class AgeModel(LightningModule):
         with torch.no_grad():
             frozen_representations = self.frozen_feature_extractor(x)
         learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
-        x = self.classifier(learned_representations)
+        x = self.dropout(learned_representations)
+        x = self.classifier(x)
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=list(range(6, 30, 3)), gamma=0.3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
@@ -60,18 +79,18 @@ class AgeModel(LightningModule):
     def training_epoch_end(self, train_step_outputs):
         avg_train_loss = torch.tensor([x['loss'] for x in train_step_outputs]).mean()
         avg_train_acc = torch.tensor([x['accuracy'] for x in train_step_outputs]).mean()
-        self.log("train/loss_epoch", avg_train_loss, prog_bar=True)
-        self.log("train/acc_epoch", avg_train_acc, prog_bar=True)
+        self.log("train/loss_epoch", avg_train_loss)
+        self.log("train/acc_epoch", avg_train_acc)
 
     def validation_epoch_end(self, val_step_outputs):
         avg_val_loss = torch.tensor([x['loss'] for x in val_step_outputs]).mean()
         avg_val_acc = torch.tensor([x['accuracy'] for x in val_step_outputs]).mean()
-        self.log("val/loss_epoch", avg_val_loss, prog_bar=True)
-        self.log("val/acc_epoch", avg_val_acc, prog_bar=True)
+        self.log("val/loss_epoch", avg_val_loss)
+        self.log("val/acc_epoch", avg_val_acc)
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace(label='age')
+        data = UTKFace(label=self.label)
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):

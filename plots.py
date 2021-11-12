@@ -25,5 +25,7 @@ for i in range(7):
     faces.append(UTKFace.denormalize(dataset.__getitem__(random.randint(0, 23700))[0]))
 
 grid = make_grid(faces)
-plt.imshow(grid.permute(1, 2, 0))
+plt.figure(figsize=(15, 3))
+plt.imshow(grid.permute(1, 2, 0), interpolation='nearest')
+plt.sa
 plt.show()
