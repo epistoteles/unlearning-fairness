@@ -8,11 +8,7 @@ from torch.utils.data import random_split
 from UTKFaceDataset import UTKFace
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning import Trainer
-
 from torchvision import models
-
-from torchvision.datasets import MNIST
-from torchvision import transforms
 
 torch.set_printoptions(linewidth=120)
 
@@ -40,7 +36,7 @@ class AgeModel(LightningModule):
         self.val_data = None
 
     def forward(self, x):
-        self.feature_extractor.eval()
+        self.frozen_feature_extractor.eval()
         with torch.no_grad():
             frozen_representations = self.frozen_feature_extractor(x)
         learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
@@ -49,7 +45,7 @@ class AgeModel(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10000])
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20, 40])
         return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
@@ -95,6 +91,6 @@ class AgeModel(LightningModule):
 model = AgeModel()
 
 logger = WandbLogger(project="age-classifier", entity='epistoteles')
-trainer = Trainer(max_epochs=100, gpus=1, logger=logger, fast_dev_run=False)
+trainer = Trainer(max_epochs=50, gpus=1, logger=logger, fast_dev_run=False)
 
 trainer.fit(model)
