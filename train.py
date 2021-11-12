@@ -88,7 +88,7 @@ class AgeModel(LightningModule):
     def setup(self, stage):
         # data = UTKFace()
         # self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
-        data = MNIST(transform=transforms.Resize((227, 227)))
+        data = MNIST(root='.', transform=transforms.Resize((227, 227)))
         self.train_data, self.val_data = random_split(data, [len(data) - 2000, 2000])
 
     def train_dataloader(self):
