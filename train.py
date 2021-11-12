@@ -31,44 +31,11 @@ class AgeModel(LightningModule):
         num_target_classes = 2
         self.classifier = nn.Linear(num_filters, num_target_classes)
 
-        # self.conv1 = nn.Conv2d(3, 96, 7, stride=4, padding=1)
-        # self.pool1 = nn.MaxPool2d(3, stride=2, padding=1)
-        # self.norm1 = nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75)
-        # self.conv2 = nn.Conv2d(96, 256, 5, stride=1, padding=2)
-        # self.pool2 = nn.MaxPool2d(3, stride=2, padding=1)
-        # self.norm2 = nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75)
-        # self.conv3 = nn.Conv2d(256, 384, 3, stride=1, padding=1)
-        # self.pool3 = nn.MaxPool2d(3, stride=2, padding=1)
-        # self.norm3 = nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75)
-        # self.fc1 = nn.Linear(18816, 512)
-        # self.dropout1 = nn.Dropout(0.5)
-        # self.fc2 = nn.Linear(512, 512)
-        # self.dropout2 = nn.Dropout(0.5)
-        # self.fc3 = nn.Linear(512, 2)
-
     def forward(self, x):
         self.feature_extractor.eval()
         with torch.no_grad():
             representations = self.feature_extractor(x).flatten(1)
         x = self.classifier(representations)
-
-        # x = F.leaky_relu(self.conv1(x))
-        # x = self.pool1(x)
-        # x = self.norm1(x)
-        # x = F.leaky_relu(self.conv2(x))
-        # x = self.pool2(x)
-        # x = self.norm2(x)
-        # x = F.leaky_relu(self.conv3(x))
-        # x = self.pool3(x)
-        # x = self.norm3(x)
-        # x = x.view(-1, 18816)
-        # x = self.fc1(x)
-        # x = F.leaky_relu(x)
-        # x = self.dropout1(x)
-        # x = self.fc2(x)
-        # x = F.leaky_relu(x)
-        # x = self.dropout2(x)
-        # x = self.fc3(x)
         return x
 
     def configure_optimizers(self):
@@ -106,12 +73,6 @@ class AgeModel(LightningModule):
     def setup(self, stage):
         data = UTKFace()
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
-        # data = MNIST(root='.',
-        #              download=True,
-        #              transform=transforms.Compose([transforms.Resize((227, 227)),
-        #                                            transforms.Grayscale(3),
-        #                                            transforms.ToTensor()
-        #                                            ]))
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
