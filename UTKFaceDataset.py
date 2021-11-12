@@ -55,9 +55,9 @@ class UTKFace(Dataset):
             if label is None:  # if label was not changed above
                 raise ValueError(f'Unknown age encountered: {age}')
         elif self.label == 'gender':
-            label = self.genders[index]
+            label = self.genders[index]  # 0 = male, 1 = female
         elif self.label == 'race':
-            label = self.races[index]
+            label = self.races[index]  # 0 = white, 1 = black, 2 = asian, 3 = indian, 4 = others
 
         # only needed for training
         transform = transforms.Compose([

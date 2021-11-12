@@ -29,3 +29,16 @@ plt.figure(figsize=(15, 3))
 plt.imshow(grid.permute(1, 2, 0), interpolation='nearest')
 plt.savefig('plots/faces.png')
 plt.show()
+
+ages = dataset.ages
+genders = dataset.genders
+races = dataset.races
+
+black_ages = [age for age, race in zip(ages, races) if race == 1]
+other_ages = [age for age, race in zip(ages, races) if race != 1]
+bins = np.linspace(1, 117, 117)
+
+plt.hist(black_ages, bins, alpha=0.5, label='black ages')
+plt.hist(other_ages, bins, alpha=0.5, label='other ages')
+plt.legend(loc='upper right')
+plt.show()
