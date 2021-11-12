@@ -65,7 +65,7 @@ class AgeModel(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
-        conf_matrix = ConfusionMatrix(num_classes=10, normalize='true')
+        conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
         return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
 
@@ -91,7 +91,7 @@ class AgeModel(LightningModule):
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=32, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
