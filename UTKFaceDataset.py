@@ -63,7 +63,7 @@ class UTKFace(Dataset):
             # transforms.RandomAffine(degrees=15, translate=None, scale=(0.9, 1.2), shear=10, fill=0),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
-            transforms.Resize((227, 227)),
+            transforms.Resize((224, 224)),  # old: 227
             transforms.ToTensor(),
             transforms.Normalize(mean=[152.01048, 116.37661, 99.60926], std=[32.09281, 29.17887, 30.77170])
         ])
