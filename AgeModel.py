@@ -25,9 +25,6 @@ class AgeModel(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
-        # log hyperparams
-        self.save_hyperparameters()
-
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
         frozen_layers = list(backbone.children())[:-4]
