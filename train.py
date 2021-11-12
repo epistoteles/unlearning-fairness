@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from pytorch_lightning import LightningModule
-import torch.nn.functional as F
 from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
 from torch.utils.data import random_split
@@ -19,11 +18,11 @@ class AgeModel(LightningModule):
 
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-3]
+        frozen_layers = list(backbone.children())[:-6]
         self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
 
-        # use the last 8 blocks with trainable parameters
-        trainable_layers = list(backbone.children())[7:-1]
+        # use the last few layers with trainable parameters
+        trainable_layers = list(backbone.children())[4:-1]
         self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
 
         # add a custom fully connected layer at the end
@@ -44,8 +43,8 @@ class AgeModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20, 40])
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 20])
         return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
@@ -91,6 +90,6 @@ class AgeModel(LightningModule):
 model = AgeModel()
 
 logger = WandbLogger(project="age-classifier", entity='epistoteles')
-trainer = Trainer(max_epochs=50, gpus=1, logger=logger, fast_dev_run=False)
+trainer = Trainer(max_epochs=30, gpus=1, logger=logger, fast_dev_run=False)
 
 trainer.fit(model)
