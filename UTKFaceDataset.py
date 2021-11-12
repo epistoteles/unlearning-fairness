@@ -51,9 +51,9 @@ class UTKFace(Dataset):
             if label is 'age':  # if label was not changed above
                 raise ValueError(f'Unknown age encountered: {age}')
         elif label == 'gender':
-            label = self.gender[index]
+            label = self.genders[index]
         elif label == 'race':
-            label = self.race[index]
+            label = self.races[index]
         else:
             raise ValueError('label type not known')
 
