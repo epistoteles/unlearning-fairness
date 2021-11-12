@@ -24,12 +24,6 @@ class AgeModel(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
-        # log hyperparams
-        # self.log("label", self.label)  # can't log strings :(
-        self.log("initial_lr", self.initial_lr)
-        self.log("gamma", self.gamma)
-        self.log("num_target_classes", self.num_target_classes)
-
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
         frozen_layers = list(backbone.children())[:-4]
@@ -58,7 +52,7 @@ class AgeModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
         return [optimizer], [scheduler]
 
@@ -92,6 +86,12 @@ class AgeModel(LightningModule):
     def setup(self, stage):
         data = UTKFace(label=self.label)
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
+
+        # log hyperparams
+        # self.log("label", self.label)  # can't log strings :(
+        self.log("initial_lr", self.initial_lr)
+        self.log("gamma", self.gamma)
+        self.log("num_target_classes", self.num_target_classes)
 
     def train_dataloader(self):
         train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
