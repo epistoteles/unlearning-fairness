@@ -90,7 +90,10 @@ class AgeModel(LightningModule):
         # self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
         data = MNIST(root='.',
                      download=True,
-                     transform=transforms.Resize((227, 227)))
+                     transform=transforms.Compose([transforms.Resize((227, 227)),
+                                                   transforms.Grayscale(3),
+                                                   transforms.ToTensor()
+                                                   ]))
         self.train_data, self.val_data = random_split(data, [len(data) - 2000, 2000])
 
     def train_dataloader(self):
