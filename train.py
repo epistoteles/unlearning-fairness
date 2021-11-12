@@ -46,10 +46,10 @@ class AgeModel(LightningModule):
         x = x.view(-1, 18816)
         x = self.fc1(x)
         x = F.leaky_relu(x)
-        # x = self.dropout1(x)
+        x = self.dropout1(x)
         x = self.fc2(x)
         x = F.leaky_relu(x)
-        # x = self.dropout2(x)
+        x = self.dropout2(x)
         x = self.fc3(x)
         return x
 
@@ -94,14 +94,14 @@ class AgeModel(LightningModule):
                                                    transforms.Grayscale(3),
                                                    transforms.ToTensor()
                                                    ]))
-        self.train_data, self.val_data = random_split(data, [len(data) - 2000, 2000])
+        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
-        train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=256)
+        train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=256, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
-        val_loader = torch.utils.data.DataLoader(self.val_data, batch_size=256, num_workers=2)
+        val_loader = torch.utils.data.DataLoader(self.val_data, batch_size=256, num_workers=4)
         return val_loader
 
 
