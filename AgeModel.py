@@ -6,7 +6,6 @@ from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
 from UTKFaceDataset import UTKFace
 from torchvision import models
-import wandb
 
 
 class AgeModel(LightningModule):
@@ -37,7 +36,8 @@ class AgeModel(LightningModule):
         # add a custom fully connected layer at the end
         num_filters = backbone.fc.in_features
         self.dropout = nn.Dropout(0.5)
-        self.classifier = nn.Linear(num_filters, self.num_target_classes)
+        self.fc = nn.Linear(num_filters, num_filters//2)
+        self.classifier = nn.Linear(num_filters//2, self.num_target_classes)
 
         # filled in setup()
         self.train_data = None
@@ -49,6 +49,8 @@ class AgeModel(LightningModule):
             frozen_representations = self.frozen_feature_extractor(x)
         learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
         x = self.dropout(learned_representations)
+        x = self.fc(x)
+        x = self.dropout(x)
         x = self.classifier(x)
         return x
 

@@ -27,5 +27,5 @@ for i in range(7):
 grid = make_grid(faces)
 plt.figure(figsize=(15, 3))
 plt.imshow(grid.permute(1, 2, 0), interpolation='nearest')
-plt.sa
+plt.savefig('plots/faces.png')
 plt.show()

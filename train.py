@@ -3,7 +3,6 @@ from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning import Trainer
 from AgeModel import AgeModel
 
-# torch.set_printoptions(linewidth=120)
 
 model = AgeModel()
 
