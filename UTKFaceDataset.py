@@ -60,7 +60,7 @@ class UTKFace(Dataset):
         transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(brightness=0.1, contrast=0.2, saturation=0.1, hue=0.0),
-            # transforms.RandomAffine(degrees=15, translate=None, scale=(0.9, 1.2), shear=10, fill=0),
+            transforms.RandomAffine(degrees=15, translate=None, scale=(0.9, 1.2), shear=10, fill=0),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
             transforms.Resize((224, 224)),  # old: 227
