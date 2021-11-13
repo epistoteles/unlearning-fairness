@@ -13,10 +13,13 @@ torch.set_printoptions(linewidth=120)
 class UTKFace(Dataset):
     """Characterizes the UTKFace dataset for PyTorch"""
 
-    def __init__(self, image_dir='UTKFace', label='age'):
+    def __init__(self, split, image_dir='UTKFace', label='age'):
         if label not in ['age', 'gender', 'race']:
             raise ValueError(f"Unknown label type '{label}', use 'age', 'gender' or 'race'")
+        if split not in ['train', 'test']:
+            raise ValueError(f"Unknown split type '{label}', use 'train' or 'test'")
         self.label = label
+        self.split = split
         self.image_dir = image_dir
         self.filenames = [f for f in listdir(image_dir) if
                           isfile(join(image_dir, f)) and
@@ -25,6 +28,15 @@ class UTKFace(Dataset):
                                     '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
                           and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
+        random.seed(42)
+        test_indices = random.sample(range(0, len(self.filenames)), 3000)
+        if self.split == 'train':
+            self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
+            self.filenames = self.filenames * 10
+            random.shuffle(self.filenames)
+        elif self.split == 'test':
+            self.filenames = [f for i, f in enumerate(self.filenames) if i in test_indices]
+            random.shuffle(self.filenames)
         self.images = []
         self.ages = list(map(lambda x: int(x.split('_')[0]), self.filenames))
         self.genders = list(map(lambda x: int(x.split('_')[1]), self.filenames))
@@ -62,27 +74,37 @@ class UTKFace(Dataset):
         elif self.label == 'race':
             label = self.races[index]  # 0 = white, 1 = black, 2 = asian, 3 = indian, 4 = others
 
-        # only needed for training
-        transform = transforms.Compose([
+        resnet_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            # transforms.ColorJitter(brightness=0.15, contrast=0.2, saturation=0.15, hue=0.05),
-            # transforms.RandomAffine(degrees=15, translate=None, scale=(0.85, 1.2), shear=10, fill=128),
+            transforms.ColorJitter(brightness=0.15, contrast=0.2, saturation=0.15, hue=0.05),
+            transforms.RandomAffine(degrees=15, translate=None, scale=(0.85, 1.2), shear=10, fill=128),
+            transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
+            transforms.RandomAutocontrast(),
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
+        ])
+
+        train_transforms = transforms.Compose([
+            transforms.Grayscale(num_output_channels=1),
+            transforms.RandomHorizontalFlip(),
             transforms.RandomChoice([
                 transforms.RandomAffine(degrees=[-40, -40], fill=0),
                 transforms.RandomAffine(degrees=[-20, -20], fill=0),
                 transforms.RandomAffine(degrees=[0, 0], fill=0),
                 transforms.RandomAffine(degrees=[20, 20], fill=0),
                 transforms.RandomAffine(degrees=[40, 40], fill=0)]),
-            transforms.Grayscale(num_output_channels=1),
-            # transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
-            # transforms.RandomAutocontrast(),
-            # transforms.Resize((224, 224)),
-            # transforms.ToTensor(),
-            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            # transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
         ])
 
-        return torch.tensor(np.array([np.array(transform(image))]), dtype=torch.float32), label
+        test_transforms = transforms.Compose([
+            transforms.Grayscale(num_output_channels=1),
+        ])
+
+        if self.split == 'train':
+            return torch.tensor(np.array([np.array(train_transforms(image))]), dtype=torch.float32), label
+        elif self.split == 'test':
+            return torch.tensor(np.array([np.array(test_transforms(image))]), dtype=torch.float32), label
 
     @staticmethod
     def denormalize(image):

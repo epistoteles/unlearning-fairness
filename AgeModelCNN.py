@@ -14,14 +14,6 @@ class AgeModelCNN(LightningModule):
         # set hyperparams
         self.label = 'age'
         self.initial_lr = 1e-3
-        self.milestones = []  # try [2, 4, 6, 10, 15, 18] ?
-        self.gamma = 0.6
-        if self.label == 'age':
-            self.num_target_classes = 7
-        elif self.label == 'race':
-            self.num_target_classes = 5
-        elif self.label == 'gender':
-            self.num_target_classes = 2
 
         # build custom CNN
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
@@ -35,7 +27,7 @@ class AgeModelCNN(LightningModule):
         self.flatten5 = nn.Flatten()
         self.fc5 = nn.Linear(in_features=256, out_features=132)
         self.relu5 = nn.ReLU()
-        self.fc6 = nn.Linear(in_features=132, out_features=self.num_target_classes)
+        self.fc6 = nn.Linear(in_features=132, out_features=7)
         self.softmax = nn.Softmax()
 
         # filled in setup()
@@ -53,8 +45,7 @@ class AgeModelCNN(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
-        return [optimizer], [scheduler]
+        return optimizer
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -84,11 +75,11 @@ class AgeModelCNN(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace(label=self.label)
-        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
+        self.train_data = UTKFace(split='train', label=self.label)
+        self.val_data = UTKFace(split='test', label=self.label)
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=128, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=512, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
