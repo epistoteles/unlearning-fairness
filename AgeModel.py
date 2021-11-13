@@ -15,8 +15,8 @@ class AgeModel(LightningModule):
         # set hyperparams
         self.label = 'age'
         self.initial_lr = 1e-4
-        self.milestones = list(range(2, 20, 2))
-        self.gamma = 0.65
+        self.milestones = list(range(2, 13, 2))
+        self.gamma = 0.6
         if self.label == 'age':
             self.num_target_classes = 10
         elif self.label == 'race':
@@ -26,16 +26,16 @@ class AgeModel(LightningModule):
 
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-4]
+        frozen_layers = list(backbone.children())[:-5]
         self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
 
         # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[6:-1]
+        trainable_layers = list(backbone.children())[5:-1]
         self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
 
         # add custom fully connected layers at the end
         num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.85)
+        self.dropout1 = nn.Dropout(0.9)
         self.relu = nn.LeakyReLU()
         self.fc1 = nn.Linear(num_filters, num_filters//2)
         self.dropout2 = nn.Dropout(0.8)
