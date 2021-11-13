@@ -26,7 +26,7 @@ class UTKFace(Dataset):
                           len(f.split('_')) == 4 and  # wrong names
                           f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
                                     '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
-                          and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
+                          # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
         random.seed(42)
         test_indices = random.sample(range(0, len(self.filenames)), 3000)
@@ -50,10 +50,7 @@ class UTKFace(Dataset):
 
     def __len__(self):
         """Denotes the total number of samples"""
-        if self.split == 'train':
-            return len(self.filenames) * 10
-        elif self.split == 'test':
-            return len(self.filenames)
+        return len(self.filenames)
 
     def __getitem__(self, index):
         """Generates one sample of data"""
