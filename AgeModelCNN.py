@@ -53,7 +53,7 @@ class AgeModelCNN(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
-        conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
+        conf_matrix = ConfusionMatrix(num_classes=7, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
         return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
 
