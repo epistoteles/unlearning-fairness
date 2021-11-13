@@ -47,7 +47,7 @@ class UTKFace(Dataset):
         label = None
         if self.label == 'age':
             # age_bins = [5, 19, 24, 27, 30, 35, 40, 50, 61, 120]  # up to x years
-            age_bins = [4, 12, 24, 36, 48, 64, 120]
+            age_bins = [4, 12, 24, 36, 48, 60, 120]
             age = self.ages[index]
             for idx, age_bin in enumerate(age_bins):
                 if age <= age_bin:
@@ -67,7 +67,7 @@ class UTKFace(Dataset):
             transforms.RandomAffine(degrees=15, translate=None, scale=(0.85, 1.2), shear=10, fill=128),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
-            transforms.Resize((224, 224)),
+            # transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise

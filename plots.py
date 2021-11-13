@@ -20,25 +20,33 @@ def show(imgs):
 dataset = UTKFace()
 plt.rcParams["savefig.bbox"] = 'tight'
 
-faces = []
-for i in range(7):
-    faces.append(UTKFace.denormalize(dataset.__getitem__(random.randint(0, 23700))[0]))
-
-grid = make_grid(faces)
-plt.figure(figsize=(15, 3))
-plt.imshow(grid.permute(1, 2, 0), interpolation='nearest')
-plt.savefig('plots/faces.png')
-plt.show()
+# faces = []
+# for i in range(7):
+#     faces.append(UTKFace.denormalize(dataset.__getitem__(random.randint(0, 23700))[0]))
+#
+# grid = make_grid(faces)
+# plt.figure(figsize=(15, 3))
+# plt.imshow(grid.permute(1, 2, 0), interpolation='nearest')
+# plt.savefig('plots/faces.png')
+# plt.show()
 
 ages = dataset.ages
 genders = dataset.genders
 races = dataset.races
 
+white_ages = [age for age, race in zip(ages, races) if race == 0]
 black_ages = [age for age, race in zip(ages, races) if race == 1]
-other_ages = [age for age, race in zip(ages, races) if race != 1]
+asian_ages = [age for age, race in zip(ages, races) if race == 2]
+indian_ages = [age for age, race in zip(ages, races) if race == 3]
+other_ages = [age for age, race in zip(ages, races) if race == 4]
 bins = np.linspace(1, 117, 117)
 
-plt.hist(black_ages, bins, alpha=0.5, label='black ages')
-plt.hist(other_ages, bins, alpha=0.5, label='other ages')
+plt.figure(figsize=(20, 8))
+plt.hist([white_ages, black_ages, asian_ages, indian_ages, other_ages],
+         bins,
+         stacked=True,
+         label=['white', 'black', 'asian', 'indian', 'other']
+         )
 plt.legend(loc='upper right')
+plt.savefig('plots/ages-vs-races.png')
 plt.show()

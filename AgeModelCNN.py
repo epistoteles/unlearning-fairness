@@ -5,17 +5,16 @@ from pytorch_lightning import LightningModule
 from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
 from UTKFaceDataset import UTKFace
-from torchvision import models
 
 
-class AgeModel(LightningModule):
+class AgeModelCNN(LightningModule):
     def __init__(self):
         super().__init__()
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-4
-        self.milestones = list(range(2, 13, 2))  # [2, 4, 6, 10, 15, 18] ?
+        self.initial_lr = 1e-3
+        self.milestones = []  # try [2, 4, 6, 10, 15, 18] ?
         self.gamma = 0.6
         if self.label == 'age':
             self.num_target_classes = 7
@@ -24,42 +23,31 @@ class AgeModel(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
-        # init a pretrained resnet
-        backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-4]
-        self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
-
-        # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[6:-1]
-        self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
-
-        # add custom fully connected layers at the end
-        num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.85)
-        self.relu = nn.LeakyReLU()
-        self.fc1 = nn.Linear(num_filters, num_filters//2)
-        self.dropout2 = nn.Dropout(0.8)
-        self.fc2 = nn.Linear(num_filters//2, num_filters//4)
-        self.dropout3 = nn.Dropout(0.75)
-        self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
+        # build custom CNN
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
+        self.pool1 = nn.AvgPool2d(kernel_size=2)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
+        self.pool2 = nn.AvgPool2d(kernel_size=2)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        self.pool3 = nn.AvgPool2d(kernel_size=2)
+        self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        self.pool4 = nn.AvgPool2d(kernel_size=20)
+        self.flatten5 = nn.Flatten()
+        self.fc5 = nn.Linear(in_features=256, out_features=132)
+        self.relu5 = nn.ReLU()
+        self.fc6 = nn.Linear(in_features=132, out_features=7)
 
         # filled in setup()
         self.train_data = None
         self.val_data = None
 
     def forward(self, x):
-        self.frozen_feature_extractor.eval()
-        with torch.no_grad():
-            frozen_representations = self.frozen_feature_extractor(x)
-        learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
-        x = self.dropout1(learned_representations)
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.dropout2(x)
-        x = self.fc2(x)
-        x = self.relu(x)
-        x = self.dropout3(x)
-        x = self.classifier(x)
+        x = self.pool1(self.conv1(x))
+        x = self.pool2(self.conv2(x))
+        x = self.pool3(self.conv3(x))
+        x = self.pool4(self.conv4(x))
+        x = self.relu5(self.fc5(self.flatten5(x)))
+        x = self.fc6(x)
         return x
 
     def configure_optimizers(self):
@@ -99,7 +87,7 @@ class AgeModel(LightningModule):
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=512, num_workers=4)
         return train_loader
 
     def val_dataloader(self):

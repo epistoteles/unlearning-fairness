@@ -1,7 +1,7 @@
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning import Trainer
-from AgeModel import AgeModel
+from AgeModelResnet import AgeModel
 
 
 model = AgeModel()
