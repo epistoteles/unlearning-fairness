@@ -62,7 +62,7 @@ class UTKFace(Dataset):
         # only needed for training
         transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            transforms.ColorJitter(brightness=0.1, contrast=0.2, saturation=0.1, hue=0.0),
+            transforms.ColorJitter(brightness=0.15, contrast=0.2, saturation=0.15, hue=0.05),
             transforms.RandomAffine(degrees=15, translate=None, scale=(0.85, 1.2), shear=10, fill=128),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
