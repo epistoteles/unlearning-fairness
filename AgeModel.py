@@ -33,11 +33,15 @@ class AgeModel(LightningModule):
         trainable_layers = list(backbone.children())[6:-1]
         self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
 
-        # add a custom fully connected layer at the end
+        # add custom fully connected layers at the end
         num_filters = backbone.fc.in_features
-        self.dropout = nn.Dropout(0.7)
-        self.fc = nn.Linear(num_filters, num_filters//2)
-        self.classifier = nn.Linear(num_filters//2, self.num_target_classes)
+        self.dropout1 = nn.Dropout(0.7)
+        self.relu = nn.LeakyReLU()
+        self.fc1 = nn.Linear(num_filters, num_filters//2)
+        self.dropout2 = nn.Dropout(0.6)
+        self.fc2 = nn.Linear(num_filters//2, num_filters//4)
+        self.dropout3 = nn.Dropout(0.5)
+        self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
 
         # filled in setup()
         self.train_data = None
@@ -48,9 +52,13 @@ class AgeModel(LightningModule):
         with torch.no_grad():
             frozen_representations = self.frozen_feature_extractor(x)
         learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
-        x = self.dropout(learned_representations)
-        x = self.fc(x)
-        x = self.dropout(x)
+        x = self.dropout1(learned_representations)
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.dropout2(x)
+        x = self.fc2(x)
+        x = self.relu(x)
+        x = self.dropout3(x)
         x = self.classifier(x)
         return x
 
