@@ -32,7 +32,6 @@ class UTKFace(Dataset):
         test_indices = random.sample(range(0, len(self.filenames)), 3000)
         if self.split == 'train':
             self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
-            self.filenames = self.filenames * 10
             random.shuffle(self.filenames)
         elif self.split == 'test':
             self.filenames = [f for i, f in enumerate(self.filenames) if i in test_indices]
@@ -51,7 +50,10 @@ class UTKFace(Dataset):
 
     def __len__(self):
         """Denotes the total number of samples"""
-        return len(self.filenames)
+        if self.split == 'train':
+            return len(self.filenames) * 10
+        elif self.split == 'test':
+            return len(self.filenames)
 
     def __getitem__(self, index):
         """Generates one sample of data"""
