@@ -46,7 +46,8 @@ class UTKFace(Dataset):
 
         label = None
         if self.label == 'age':
-            age_bins = [5, 19, 24, 27, 30, 35, 40, 50, 61, 120]  # up to x years
+            # age_bins = [5, 19, 24, 27, 30, 35, 40, 50, 61, 120]  # up to x years
+            age_bins = [4, 12, 24, 36, 48, 64, 120]
             age = self.ages[index]
             for idx, age_bin in enumerate(age_bins):
                 if age <= age_bin:

@@ -18,7 +18,7 @@ class AgeModel(LightningModule):
         self.milestones = list(range(2, 13, 2))  # [2, 4, 6, 10, 15, 18] ?
         self.gamma = 0.6
         if self.label == 'age':
-            self.num_target_classes = 10
+            self.num_target_classes = 7
         elif self.label == 'race':
             self.num_target_classes = 5
         elif self.label == 'gender':
