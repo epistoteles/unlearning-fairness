@@ -13,7 +13,7 @@ class AgeModelCNN(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-3
+        self.initial_lr = 1e-4
 
         # build custom CNN
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
@@ -28,7 +28,7 @@ class AgeModelCNN(LightningModule):
         self.fc5 = nn.Linear(in_features=256, out_features=132)
         self.relu5 = nn.ReLU()
         self.fc6 = nn.Linear(in_features=132, out_features=7)
-        self.softmax = nn.Softmax()
+        self.softmax = nn.Softmax(dim=7)
 
         # filled in setup()
         self.train_data = None
