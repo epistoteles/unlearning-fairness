@@ -8,7 +8,7 @@ from UTKFaceDataset import UTKFace
 from torchvision import models
 
 
-class AgeModel(LightningModule):
+class AgeModelResnet(LightningModule):
     def __init__(self):
         super().__init__()
 
@@ -95,8 +95,8 @@ class AgeModel(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        data = UTKFace(label=self.label)
-        self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
+        self.train_data = UTKFace(split='train', label=self.label)
+        self.val_data = UTKFace(split='test', label=self.label)
 
     def train_dataloader(self):
         train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
