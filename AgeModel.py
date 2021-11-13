@@ -15,8 +15,8 @@ class AgeModel(LightningModule):
         # set hyperparams
         self.label = 'age'
         self.initial_lr = 1e-4
-        self.milestones = list(range(2, 30, 2))
-        self.gamma = 0.5
+        self.milestones = list(range(2, 20, 2))
+        self.gamma = 0.65
         if self.label == 'age':
             self.num_target_classes = 10
         elif self.label == 'race':
@@ -35,12 +35,12 @@ class AgeModel(LightningModule):
 
         # add custom fully connected layers at the end
         num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.7)
+        self.dropout1 = nn.Dropout(0.8)
         self.relu = nn.LeakyReLU()
         self.fc1 = nn.Linear(num_filters, num_filters//2)
-        self.dropout2 = nn.Dropout(0.6)
+        self.dropout2 = nn.Dropout(0.7)
         self.fc2 = nn.Linear(num_filters//2, num_filters//4)
-        self.dropout3 = nn.Dropout(0.5)
+        self.dropout3 = nn.Dropout(0.6)
         self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
 
         # filled in setup()
