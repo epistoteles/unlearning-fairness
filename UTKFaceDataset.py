@@ -93,9 +93,9 @@ class UTKFace(Dataset):
         ])
 
         if self.split == 'train':
-            return torch.tensor(np.array([np.array(train_transforms(image))]), dtype=torch.float32), label
+            return train_transforms(image), label
         elif self.split == 'test':
-            return torch.tensor(np.array([np.array(test_transforms(image))]), dtype=torch.float32), label
+            return test_transforms(image), label
 
     @staticmethod
     def denormalize(image):
