@@ -13,7 +13,7 @@ class AgeModelCNN(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-4
+        self.initial_lr = 1e-5
 
         # build custom CNN
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
@@ -78,7 +78,7 @@ class AgeModelCNN(LightningModule):
         self.val_data = UTKFace(split='test', label=self.label)
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=512, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
