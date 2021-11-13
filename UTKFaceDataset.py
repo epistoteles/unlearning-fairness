@@ -65,19 +65,24 @@ class UTKFace(Dataset):
         # only needed for training
         transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            #transforms.ColorJitter(brightness=0.15, contrast=0.2, saturation=0.15, hue=0.05),
+            # transforms.ColorJitter(brightness=0.15, contrast=0.2, saturation=0.15, hue=0.05),
             # transforms.RandomAffine(degrees=15, translate=None, scale=(0.85, 1.2), shear=10, fill=128),
-            transforms.RandomAffine(degrees=40, fill=0),
+            transforms.RandomChoice([
+                transforms.RandomAffine(degrees=[-40, -40], fill=0),
+                transforms.RandomAffine(degrees=[-20, -20], fill=0),
+                transforms.RandomAffine(degrees=[0, 0], fill=0),
+                transforms.RandomAffine(degrees=[20, 20], fill=0),
+                transforms.RandomAffine(degrees=[40, 40], fill=0)]),
             transforms.Grayscale(num_output_channels=1),
-            #transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
-            #transforms.RandomAutocontrast(),
+            # transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
+            # transforms.RandomAutocontrast(),
             # transforms.Resize((224, 224)),
             # transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            #transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
+            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            # transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
         ])
 
-        return torch.tensor([np.array(transform(image))], dtype=torch.float32), label
+        return torch.tensor(np.array([np.array(transform(image))]), dtype=torch.float32), label
 
     @staticmethod
     def denormalize(image):
