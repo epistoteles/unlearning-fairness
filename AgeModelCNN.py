@@ -35,7 +35,8 @@ class AgeModelCNN(LightningModule):
         self.flatten5 = nn.Flatten()
         self.fc5 = nn.Linear(in_features=256, out_features=132)
         self.relu5 = nn.ReLU()
-        self.fc6 = nn.Linear(in_features=132, out_features=7)
+        self.fc6 = nn.Linear(in_features=132, out_features=self.num_target_classes)
+        self.softmax = nn.Softmax()
 
         # filled in setup()
         self.train_data = None
@@ -47,7 +48,7 @@ class AgeModelCNN(LightningModule):
         x = self.pool3(self.conv3(x))
         x = self.pool4(self.conv4(x))
         x = self.relu5(self.fc5(self.flatten5(x)))
-        x = self.fc6(x)
+        x = self.softmax(self.fc6(x))
         return x
 
     def configure_optimizers(self):
