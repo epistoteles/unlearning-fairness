@@ -91,7 +91,7 @@ class AgeModel(LightningModule):
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=256, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
