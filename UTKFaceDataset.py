@@ -77,7 +77,7 @@ class UTKFace(Dataset):
             #transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
         ])
 
-        return torch.tensor(np.array(transform(image)), dtype=torch.float32), label
+        return torch.tensor([np.array(transform(image))], dtype=torch.float32), label
 
     @staticmethod
     def denormalize(image):
