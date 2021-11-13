@@ -35,7 +35,7 @@ class AgeModel(LightningModule):
 
         # add a custom fully connected layer at the end
         num_filters = backbone.fc.in_features
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.7)
         self.fc = nn.Linear(num_filters, num_filters//2)
         self.classifier = nn.Linear(num_filters//2, self.num_target_classes)
 
@@ -91,7 +91,7 @@ class AgeModel(LightningModule):
         self.train_data, self.val_data = random_split(data, [len(data) - 3000, 3000])
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=32, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=128, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
