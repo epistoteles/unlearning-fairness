@@ -14,7 +14,7 @@ class AgeModelResnet18(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-3
+        self.initial_lr = 6e-4
         if self.label == 'age':
             self.num_target_classes = 7
         elif self.label == 'race':
@@ -22,12 +22,12 @@ class AgeModelResnet18(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
-        # use first 4 parts as frozen feature extractor to save training time
-        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-6]
+        # use first 3 parts as frozen feature extractor to save training time
+        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-7]
         self.feature_extractor1 = nn.Sequential(*pretrained_layers)
 
         # use middle part of a pretrained resnet
-        pretrained_layers = list(models.resnet18(pretrained=True).children())[4:-3]
+        pretrained_layers = list(models.resnet18(pretrained=True).children())[3:-3]
         self.feature_extractor2 = nn.Sequential(*pretrained_layers)
 
         # use later part of a randomly initialized resnet
@@ -63,7 +63,7 @@ class AgeModelResnet18(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[4, 7, 9, 11], gamma=0.3)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[4, 7, 10], gamma=0.2)
         # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=1, factor=0.2)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss_epoch"}
 
