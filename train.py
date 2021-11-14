@@ -13,7 +13,7 @@ logger = WandbLogger(project="age-classifier", entity='epistoteles')
 lr_monitor_cb = LearningRateMonitor(logging_interval='epoch')
 checkpoint_cb = ModelCheckpoint(monitor="val/macro_f1_epoch",
                                 dirpath="checkpoints/run1/",
-                                filename="agemodel-shard=1-{epoch:02d}-{val/macro_f1_epoch:.2f}",
+                                filename="agemodel-shard=1-{epoch:02d}",
                                 save_top_k=1,
                                 mode='max')
 trainer = Trainer(max_epochs=15, gpus=1, logger=logger, callbacks=[lr_monitor_cb, checkpoint_cb])
