@@ -3,7 +3,7 @@ from torch import nn
 from torch.utils.data import random_split, DataLoader
 from pytorch_lightning import LightningModule
 from torchmetrics import ConfusionMatrix
-from torchmetrics.functional import accuracy
+from torchmetrics.functional import accuracy, f1
 from UTKFaceDataset import UTKFace
 from torchvision import models
 
@@ -73,9 +73,11 @@ class AgeModelResnet18(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
+        macro_f1 = f1(logits, y, average='macro')
         conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
-        return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
+        self.log("batch_macro_f1", macro_f1)
+        return {'loss': loss, 'accuracy': acc, 'macro_f1': macro_f1, 'conf_matrix': conf_matrix}
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
@@ -83,21 +85,27 @@ class AgeModelResnet18(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
+        macro_f1 = f1(logits, y, average='macro')
         conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
-        return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
+        self.log("batch_macro_f1", macro_f1)
+        return {'loss': loss, 'accuracy': acc, 'macro_f1': macro_f1, 'conf_matrix': conf_matrix}
 
     def training_epoch_end(self, train_step_outputs):
         avg_train_loss = torch.tensor([x['loss'] for x in train_step_outputs]).mean()
         avg_train_acc = torch.tensor([x['accuracy'] for x in train_step_outputs]).mean()
+        avg_train_macro_f1 = torch.tensor([x['macro_f1'] for x in train_step_outputs]).mean()
         self.log("train/loss_epoch", avg_train_loss)
         self.log("train/acc_epoch", avg_train_acc)
+        self.log("train/macro_f1_epoch", avg_train_acc)
 
     def validation_epoch_end(self, val_step_outputs):
         avg_val_loss = torch.tensor([x['loss'] for x in val_step_outputs]).mean()
         avg_val_acc = torch.tensor([x['accuracy'] for x in val_step_outputs]).mean()
+        avg_val_macro_f1 = torch.tensor([x['macro_f1'] for x in val_step_outputs]).mean()
         self.log("val/loss_epoch", avg_val_loss)
         self.log("val/acc_epoch", avg_val_acc)
+        self.log("val/macro_f1_epoch", avg_val_acc)
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
