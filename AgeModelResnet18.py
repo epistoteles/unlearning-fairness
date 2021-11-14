@@ -14,7 +14,7 @@ class AgeModelResnet18(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-3
+        self.initial_lr = 5e-3
         self.milestones = list(range(2, 9, 2))
         self.gamma = 0.5
         if self.label == 'age':
@@ -24,23 +24,21 @@ class AgeModelResnet18(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
-        # init a pretrained resnet
-        backbone = models.resnet18(pretrained=False)
-        frozen_layers = list(backbone.children())[:-6]
-        self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
+        # use first part of a pretrained resnet
+        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-5]
+        self.feature_extractor1 = nn.Sequential(*pretrained_layers)
 
-        # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[0:-1]
-        self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
+        # use later part of a randomly initialized resnet
+        random_layers = list(models.resnet18(pretrained=False).children())[5:-1]
+        self.feature_extractor2 = nn.Sequential(*random_layers)
 
         # add custom fully connected layers at the end
-        num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.2)
-        self.relu = nn.LeakyReLU()
+        num_filters = random_layers[-1].in_features
+        self.relu = nn.ReLU()
         self.fc1 = nn.Linear(num_filters, num_filters//2)
-        self.dropout2 = nn.Dropout(0.7)
+        self.dropout1 = nn.Dropout(0.8)
         self.fc2 = nn.Linear(num_filters//2, num_filters//4)
-        self.dropout3 = nn.Dropout(0.5)
+        self.dropout2 = nn.Dropout(0.5)
         self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
 
         # filled in setup()
@@ -48,25 +46,21 @@ class AgeModelResnet18(LightningModule):
         self.val_data = None
 
     def forward(self, x):
-        frozen_representations = x
-        #self.frozen_feature_extractor.eval()
-        #with torch.no_grad():
-        #    frozen_representations = self.frozen_feature_extractor(x)
-        learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
-        x = self.dropout1(learned_representations)
+        x = self.feature_extractor1(x)
+        x = self.feature_extractor2(x).flatten(1)
         x = self.fc1(x)
         x = self.relu(x)
-        x = self.dropout2(x)
+        x = self.dropout1(x)
         x = self.fc2(x)
         x = self.relu(x)
-        x = self.dropout3(x)
+        x = self.dropout2(x)
         x = self.classifier(x)
         return x
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=4)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=2)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss_epoch"}
 
     def training_step(self, batch, batch_idx):
