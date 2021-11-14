@@ -36,7 +36,7 @@ class AgeModelResnet18(LightningModule):
         self.relu = nn.ReLU()
         self.fc1 = nn.LazyLinear(256)
         self.dropout1 = nn.Dropout(0.8)
-        self.fc2 = nn.Linear(128, 128)
+        self.fc2 = nn.Linear(256, 128)
         self.dropout2 = nn.Dropout(0.5)
         self.classifier = nn.Linear(128, self.num_target_classes)
 
