@@ -73,7 +73,7 @@ class AgeModelResnet18(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
-        macro_f1 = f1(logits, y, average='macro')
+        macro_f1 = f1(logits, y, average='macro', num_classes=7)
         conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
         self.log("batch_macro_f1", macro_f1)
@@ -85,7 +85,7 @@ class AgeModelResnet18(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
-        macro_f1 = f1(logits, y, average='macro')
+        macro_f1 = f1(logits, y, average='macro', num_classes=7)
         conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
         self.log("batch_macro_f1", macro_f1)
@@ -97,7 +97,7 @@ class AgeModelResnet18(LightningModule):
         avg_train_macro_f1 = torch.tensor([x['macro_f1'] for x in train_step_outputs]).mean()
         self.log("train/loss_epoch", avg_train_loss)
         self.log("train/acc_epoch", avg_train_acc)
-        self.log("train/macro_f1_epoch", avg_train_acc)
+        self.log("train/macro_f1_epoch", avg_train_macro_f1)
 
     def validation_epoch_end(self, val_step_outputs):
         avg_val_loss = torch.tensor([x['loss'] for x in val_step_outputs]).mean()
@@ -105,7 +105,7 @@ class AgeModelResnet18(LightningModule):
         avg_val_macro_f1 = torch.tensor([x['macro_f1'] for x in val_step_outputs]).mean()
         self.log("val/loss_epoch", avg_val_loss)
         self.log("val/acc_epoch", avg_val_acc)
-        self.log("val/macro_f1_epoch", avg_val_acc)
+        self.log("val/macro_f1_epoch", avg_val_macro_f1)
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
