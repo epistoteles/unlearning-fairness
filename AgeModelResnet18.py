@@ -14,7 +14,7 @@ class AgeModelResnet18(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 5e-3
+        self.initial_lr = 5e-4
         self.milestones = list(range(2, 9, 2))
         self.gamma = 0.5
         if self.label == 'age':
@@ -25,11 +25,11 @@ class AgeModelResnet18(LightningModule):
             self.num_target_classes = 2
 
         # use first part of a pretrained resnet
-        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-5]
+        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-3]
         self.feature_extractor1 = nn.Sequential(*pretrained_layers)
 
         # use later part of a randomly initialized resnet
-        random_layers = list(models.resnet18(pretrained=False).children())[5:-1]
+        random_layers = list(models.resnet18(pretrained=False).children())[7:-1]
         self.feature_extractor2 = nn.Sequential(*random_layers)
 
         # add custom fully connected layers at the end
