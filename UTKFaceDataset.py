@@ -5,7 +5,6 @@ from os.path import isfile, join
 from PIL import Image
 from torchvision import transforms
 import random
-import numpy as np
 
 torch.set_printoptions(linewidth=120)
 
@@ -30,7 +29,7 @@ class UTKFace(Dataset):
                           # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
         random.seed(1337)
-        test_indices = random.sample(range(0, len(self.filenames)), 3500)
+        test_indices = random.sample(range(0, len(self.filenames)), 3000)
         if self.split == 'train':
             self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
             random.shuffle(self.filenames)
@@ -60,8 +59,8 @@ class UTKFace(Dataset):
         label = None
         if self.label == 'age':
             # age_bins = [5, 19, 24, 27, 30, 35, 40, 50, 61, 120]  # 10 equal sized
-            # age_bins = [4, 12, 24, 36, 48, 60, 120]  # my own choice
-            age_bins = [2, 9, 20, 27, 45, 65, 120]  # from tds blog post
+            age_bins = [4, 12, 24, 36, 48, 60, 120]  # my own choice
+            # age_bins = [2, 9, 20, 27, 45, 65, 120]  # from tds blog post
             age = self.ages[index]
             for idx, age_bin in enumerate(age_bins):
                 if age <= age_bin:

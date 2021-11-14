@@ -8,14 +8,14 @@ from UTKFaceDataset import UTKFace
 from torchvision import models
 
 
-class AgeModelResnet(LightningModule):
+class AgeModelVGG(LightningModule):
     def __init__(self):
         super().__init__()
 
         # set hyperparams
         self.label = 'age'
         self.initial_lr = 1e-4
-        self.milestones = list(range(2, 11, 3))
+        self.milestones = list(range(2, 11, 2))  # try [2, 4, 6, 10, 15, 18] ?
         self.gamma = 0.6
         if self.label == 'age':
             self.num_target_classes = 7
@@ -25,40 +25,29 @@ class AgeModelResnet(LightningModule):
             self.num_target_classes = 2
 
         # init a pretrained resnet
-        backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-4]
-        self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
-
-        # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[6:-1]
-        self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
-
-        # add custom fully connected layers at the end
-        num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.85)
-        self.relu = nn.LeakyReLU()
-        self.fc1 = nn.Linear(num_filters, num_filters//2)
-        self.dropout2 = nn.Dropout(0.8)
-        self.fc2 = nn.Linear(num_filters//2, num_filters//4)
-        self.dropout3 = nn.Dropout(0.75)
-        self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
+        backbone = models.vgg16(pretrained=False)
+        self.feature_extractor = list(backbone.children())[0]
+        self.pool = nn.AdaptiveAvgPool2d(output_size=(7, 7))
+        self.classifier = nn.Sequential(
+            nn.Linear(in_features=25088, out_features=4096),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features=4096, out_features=4096),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features=4096, out_features=512),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features=512, out_features=self.num_target_classes)
+        )
 
         # filled in setup()
         self.train_data = None
         self.val_data = None
 
     def forward(self, x):
-        self.frozen_feature_extractor.eval()
-        with torch.no_grad():
-            frozen_representations = self.frozen_feature_extractor(x)
-        learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
-        x = self.dropout1(learned_representations)
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.dropout2(x)
-        x = self.fc2(x)
-        x = self.relu(x)
-        x = self.dropout3(x)
+        x = self.feature_extractor(x)
+        x = self.pool(x)
         x = self.classifier(x)
         return x
 
