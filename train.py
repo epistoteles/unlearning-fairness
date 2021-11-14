@@ -3,10 +3,11 @@ from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning import Trainer
 from AgeModelCNN import AgeModelCNN
 from AgeModelVGG import AgeModelVGG
-from AgeModelResnet import AgeModelResnet
+from AgeModelResnet50 import AgeModelResnet50
+from AgeModelResnet18 import AgeModelResnet18
 
 
-model = AgeModelResnet()
+model = AgeModelResnet18()
 
 logger = WandbLogger(project="age-classifier", entity='epistoteles')
 lr_monitor = LearningRateMonitor(logging_interval='epoch')

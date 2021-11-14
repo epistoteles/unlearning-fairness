@@ -8,13 +8,13 @@ from UTKFaceDataset import UTKFace
 from torchvision import models
 
 
-class AgeModelResnet(LightningModule):
+class AgeModelResnet18(LightningModule):
     def __init__(self):
         super().__init__()
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 5e-4
+        self.initial_lr = 1e-3
         self.milestones = list(range(2, 9, 2))
         self.gamma = 0.5
         if self.label == 'age':
@@ -25,22 +25,22 @@ class AgeModelResnet(LightningModule):
             self.num_target_classes = 2
 
         # init a pretrained resnet
-        backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-5]
+        backbone = models.resnet18(pretrained=False)
+        frozen_layers = list(backbone.children())[:-6]
         self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
 
         # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[5:-1]
+        trainable_layers = list(backbone.children())[0:-1]
         self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
 
         # add custom fully connected layers at the end
         num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.5)
+        self.dropout1 = nn.Dropout(0.2)
         self.relu = nn.LeakyReLU()
         self.fc1 = nn.Linear(num_filters, num_filters//2)
-        self.dropout2 = nn.Dropout(0.8)
+        self.dropout2 = nn.Dropout(0.7)
         self.fc2 = nn.Linear(num_filters//2, num_filters//4)
-        self.dropout3 = nn.Dropout(0.7)
+        self.dropout3 = nn.Dropout(0.5)
         self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
 
         # filled in setup()
@@ -48,9 +48,10 @@ class AgeModelResnet(LightningModule):
         self.val_data = None
 
     def forward(self, x):
-        self.frozen_feature_extractor.eval()
-        with torch.no_grad():
-            frozen_representations = self.frozen_feature_extractor(x)
+        frozen_representations = x
+        #self.frozen_feature_extractor.eval()
+        #with torch.no_grad():
+        #    frozen_representations = self.frozen_feature_extractor(x)
         learned_representations = self.trainable_feature_extractor(frozen_representations).flatten(1)
         x = self.dropout1(learned_representations)
         x = self.fc1(x)
@@ -65,7 +66,7 @@ class AgeModelResnet(LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=4)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss_epoch"}
 
     def training_step(self, batch, batch_idx):
@@ -100,7 +101,7 @@ class AgeModelResnet(LightningModule):
         self.val_data = UTKFace(split='test', label=self.label)
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)
+        train_loader = DataLoader(self.train_data, batch_size=128, num_workers=4)
         return train_loader
 
     def val_dataloader(self):
