@@ -78,8 +78,14 @@ class AgeModelResnet18(LightningModule):
         return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
 
     def validation_step(self, batch, batch_idx):
-        results = self.training_step(batch, batch_idx)
-        return results
+        x, y = batch
+        logits = self(x)
+        loss_function = nn.CrossEntropyLoss()
+        loss = loss_function(logits, y)
+        acc = accuracy(logits, y)
+        conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
+        self.log("batch_acc", acc, prog_bar=True)
+        return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
 
     def training_epoch_end(self, train_step_outputs):
         avg_train_loss = torch.tensor([x['loss'] for x in train_step_outputs]).mean()
