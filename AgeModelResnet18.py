@@ -14,9 +14,7 @@ class AgeModelResnet18(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 5e-4
-        self.milestones = list(range(2, 9, 2))
-        self.gamma = 0.5
+        self.initial_lr = 1e-3
         if self.label == 'age':
             self.num_target_classes = 7
         elif self.label == 'race':
@@ -24,13 +22,17 @@ class AgeModelResnet18(LightningModule):
         elif self.label == 'gender':
             self.num_target_classes = 2
 
-        # use first part of a pretrained resnet
-        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-3]
+        # use first 4 parts as frozen feature extractor to save training time
+        pretrained_layers = list(models.resnet18(pretrained=True).children())[:-6]
         self.feature_extractor1 = nn.Sequential(*pretrained_layers)
+
+        # use middle part of a pretrained resnet
+        pretrained_layers = list(models.resnet18(pretrained=True).children())[4:-3]
+        self.feature_extractor2 = nn.Sequential(*pretrained_layers)
 
         # use later part of a randomly initialized resnet
         random_layers = list(models.resnet18(pretrained=False).children())[7:-1]
-        self.feature_extractor2 = nn.Sequential(*random_layers)
+        self.feature_extractor3 = nn.Sequential(*random_layers)
 
         # add custom fully connected layers at the end
         self.relu = nn.ReLU()
@@ -45,8 +47,11 @@ class AgeModelResnet18(LightningModule):
         self.val_data = None
 
     def forward(self, x):
-        x = self.feature_extractor1(x)
-        x = self.feature_extractor2(x).flatten(1)
+        self.feature_extractor1.eval()
+        with torch.no_grad():
+            x = self.feature_extractor1(x)
+        x = self.feature_extractor2(x)
+        x = self.feature_extractor3(x).flatten(1)
         x = self.fc1(x)
         x = self.relu(x)
         x = self.dropout1(x)
@@ -58,7 +63,8 @@ class AgeModelResnet18(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=1, factor=0.2)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.2)
+        # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=1, factor=0.2)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss_epoch"}
 
     def training_step(self, batch, batch_idx):
