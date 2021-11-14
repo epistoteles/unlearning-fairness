@@ -6,7 +6,7 @@ from AgeModelVGG import AgeModelVGG
 from AgeModelResnet import AgeModelResnet
 
 
-model = AgeModelVGG()
+model = AgeModelResnet()
 
 logger = WandbLogger(project="age-classifier", entity='epistoteles')
 lr_monitor = LearningRateMonitor(logging_interval='epoch')
