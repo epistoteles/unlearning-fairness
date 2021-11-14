@@ -37,9 +37,9 @@ class AgeModelResnet18(LightningModule):
         # add custom fully connected layers at the end
         self.relu = nn.ReLU()
         self.fc1 = nn.LazyLinear(256)
-        self.dropout1 = nn.Dropout(0.01)
+        self.dropout1 = nn.Dropout(0.3)
         self.fc2 = nn.Linear(256, 128)
-        self.dropout2 = nn.Dropout(0.01)
+        self.dropout2 = nn.Dropout(0.1)
         self.classifier = nn.Linear(128, self.num_target_classes)
 
         # filled in setup()
