@@ -29,7 +29,7 @@ class UTKFace(Dataset):
                           # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
         random.seed(42)
-        test_indices = random.sample(range(0, len(self.filenames)), 3000)
+        test_indices = random.sample(range(0, len(self.filenames)), 300)
         if self.split == 'train':
             self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
             random.shuffle(self.filenames)
