@@ -66,7 +66,7 @@ class AgeModelResnet(LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5)
-        return [optimizer], [scheduler]
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val_loss"}
 
     def training_step(self, batch, batch_idx):
         x, y = batch
