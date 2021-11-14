@@ -35,12 +35,12 @@ class AgeModelResnet(LightningModule):
 
         # add custom fully connected layers at the end
         num_filters = backbone.fc.in_features
-        self.dropout1 = nn.Dropout(0.85)
+        self.dropout1 = nn.Dropout(0.5)
         self.relu = nn.LeakyReLU()
         self.fc1 = nn.Linear(num_filters, num_filters//2)
         self.dropout2 = nn.Dropout(0.8)
         self.fc2 = nn.Linear(num_filters//2, num_filters//4)
-        self.dropout3 = nn.Dropout(0.75)
+        self.dropout3 = nn.Dropout(0.7)
         self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
 
         # filled in setup()
@@ -66,7 +66,7 @@ class AgeModelResnet(LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5)
-        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val_loss"}
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss_epoch"}
 
     def training_step(self, batch, batch_idx):
         x, y = batch
