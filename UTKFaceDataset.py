@@ -26,9 +26,9 @@ class UTKFace(Dataset):
                           f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
                                     '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
                           # and random.randint(1,10) <= 2  # only keep 1/5 of data
-                          # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
+                          and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
-        random.seed(1337)
+        random.seed(42)
         test_indices = random.sample(range(0, len(self.filenames)), 3000)
         if self.split == 'train':
             self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
@@ -82,7 +82,7 @@ class UTKFace(Dataset):
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # 5% noise
+            transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # noise
         ])
 
         test_transforms = transforms.Compose([

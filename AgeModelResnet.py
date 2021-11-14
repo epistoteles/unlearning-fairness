@@ -15,7 +15,7 @@ class AgeModelResnet(LightningModule):
         # set hyperparams
         self.label = 'age'
         self.initial_lr = 1e-4
-        self.milestones = list(range(2, 11, 3))
+        self.milestones = list(range(2, 11, 2))
         self.gamma = 0.6
         if self.label == 'age':
             self.num_target_classes = 7
