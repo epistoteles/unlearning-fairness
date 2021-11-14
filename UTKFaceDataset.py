@@ -15,8 +15,8 @@ class UTKFace(Dataset):
     def __init__(self, split, image_dir='UTKFace', label='age'):
         if label not in ['age', 'gender', 'race']:
             raise ValueError(f"Unknown label type '{label}', use 'age', 'gender' or 'race'")
-        if split not in ['train', 'test']:
-            raise ValueError(f"Unknown split type '{label}', use 'train' or 'test'")
+        if split not in ['train', 'test', 'all']:
+            raise ValueError(f"Unknown split type '{label}', use 'train', 'test' or 'all'")
         self.label = label
         self.split = split
         self.image_dir = image_dir
@@ -26,7 +26,7 @@ class UTKFace(Dataset):
                           f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
                                     '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
                           # and random.randint(1,10) <= 2  # only keep 1/5 of data
-                          and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
+                          # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
         random.seed(42)
         test_indices = random.sample(range(0, len(self.filenames)), 3000)
@@ -35,6 +35,8 @@ class UTKFace(Dataset):
             random.shuffle(self.filenames)
         elif self.split == 'test':
             self.filenames = [f for i, f in enumerate(self.filenames) if i in test_indices]
+            random.shuffle(self.filenames)
+        elif self.split == 'all':
             random.shuffle(self.filenames)
         self.images = []
         self.ages = list(map(lambda x: int(x.split('_')[0]), self.filenames))
@@ -59,8 +61,8 @@ class UTKFace(Dataset):
         label = None
         if self.label == 'age':
             # age_bins = [5, 19, 24, 27, 30, 35, 40, 50, 61, 120]  # 10 equal sized
-            age_bins = [4, 12, 24, 36, 48, 60, 120]  # my own choice
-            # age_bins = [2, 9, 20, 27, 45, 65, 120]  # from tds blog post
+            # age_bins = [4, 12, 24, 36, 48, 60, 120]  # my own choice
+            age_bins = [2, 9, 20, 27, 45, 65, 120]  # from tds blog post
             age = self.ages[index]
             for idx, age_bin in enumerate(age_bins):
                 if age <= age_bin:
@@ -94,7 +96,8 @@ class UTKFace(Dataset):
         if self.split == 'train':
             return train_transforms(image), label
         elif self.split == 'test':
-            return test_transforms(image), label
+            # return test_transforms(image), label
+            return train_transforms(image), label
 
     @staticmethod
     def denormalize(image):

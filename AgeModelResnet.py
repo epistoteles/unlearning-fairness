@@ -15,8 +15,8 @@ class AgeModelResnet(LightningModule):
         # set hyperparams
         self.label = 'age'
         self.initial_lr = 1e-4
-        self.milestones = list(range(2, 11, 2))
-        self.gamma = 0.6
+        self.milestones = list(range(2, 9, 2))
+        self.gamma = 0.5
         if self.label == 'age':
             self.num_target_classes = 7
         elif self.label == 'race':
@@ -65,7 +65,8 @@ class AgeModelResnet(LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
-        return [optimizer], [scheduler]
+        # return [optimizer], [scheduler]
+        return optimizer
 
     def training_step(self, batch, batch_idx):
         x, y = batch
