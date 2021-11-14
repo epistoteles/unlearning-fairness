@@ -14,7 +14,7 @@ class AgeModelResnet18(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-2
+        self.initial_lr = 5e-3
         self.milestones = list(range(2, 9, 2))
         self.gamma = 0.5
         if self.label == 'age':
@@ -33,13 +33,12 @@ class AgeModelResnet18(LightningModule):
         self.feature_extractor2 = nn.Sequential(*random_layers)
 
         # add custom fully connected layers at the end
-        num_filters = random_layers[-1].in_features
         self.relu = nn.ReLU()
-        self.fc1 = nn.Linear(num_filters, num_filters//2)
+        self.fc1 = nn.LazyLinear(256)
         self.dropout1 = nn.Dropout(0.8)
-        self.fc2 = nn.Linear(num_filters//2, num_filters//4)
+        self.fc2 = nn.Linear(128, 128)
         self.dropout2 = nn.Dropout(0.5)
-        self.classifier = nn.Linear(num_filters//4, self.num_target_classes)
+        self.classifier = nn.Linear(128, self.num_target_classes)
 
         # filled in setup()
         self.train_data = None
