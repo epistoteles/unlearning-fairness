@@ -20,6 +20,7 @@ class UTKFace(Dataset):
         self.label = label
         self.split = split
         self.image_dir = image_dir
+        random.seed(42)
         self.filenames = [f for f in listdir(image_dir) if
                           isfile(join(image_dir, f)) and
                           len(f.split('_')) == 4 and  # wrong names
@@ -28,7 +29,6 @@ class UTKFace(Dataset):
                           and random.randint(1, 10) == 1  # only keep 1/10 of data
                           # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
-        random.seed(42)
         test_indices = random.sample(range(0, len(self.filenames)), 300)
         if self.split == 'train':
             self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
