@@ -1,0 +1,22 @@
+{
+    "os": "Linux-5.11.0-40-generic-x86_64-with-glibc2.33",
+    "python": "3.9.5",
+    "heartbeatAt": "2021-11-14T02:48:31.345334",
+    "startedAt": "2021-11-14T02:48:30.383157",
+    "docker": null,
+    "cpu_count": 8,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/korbinian/Documents/Trustworthy ML/unlearning-fairness/train.py",
+    "codePath": "train.py",
+    "git": {
+        "remote": "git@github.com:epistoteles/unlearning-fairness.git",
+        "commit": "a1760acf6d8e28e334583e64fb3874d6d9b61f54"
+    },
+    "email": "korbinian-koch@web.de",
+    "root": "/home/korbinian/Documents/Trustworthy ML/unlearning-fairness",
+    "host": "korbinian",
+    "username": "korbinian",
+    "executable": "/home/korbinian/Documents/Trustworthy ML/unlearning-fairness/venv/bin/python"
+}

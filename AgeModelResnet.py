@@ -14,7 +14,7 @@ class AgeModelResnet(LightningModule):
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-4
+        self.initial_lr = 5e-4
         self.milestones = list(range(2, 9, 2))
         self.gamma = 0.5
         if self.label == 'age':
@@ -26,11 +26,11 @@ class AgeModelResnet(LightningModule):
 
         # init a pretrained resnet
         backbone = models.resnet50(pretrained=True)
-        frozen_layers = list(backbone.children())[:-4]
+        frozen_layers = list(backbone.children())[:-5]
         self.frozen_feature_extractor = nn.Sequential(*frozen_layers)
 
         # use the last few layers with trainable parameters
-        trainable_layers = list(backbone.children())[6:-1]
+        trainable_layers = list(backbone.children())[5:-1]
         self.trainable_feature_extractor = nn.Sequential(*trainable_layers)
 
         # add custom fully connected layers at the end
@@ -64,9 +64,9 @@ class AgeModelResnet(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
-        # return [optimizer], [scheduler]
-        return optimizer
+        # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5)
+        return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
         x, y = batch

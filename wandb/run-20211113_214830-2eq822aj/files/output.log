@@ -1,0 +1,11 @@
+
+Validation sanity check:   0% 0/2 [00:00<?, ?it/s]
+  | Name              | Type              | Params
+--------------------------------------------------------
+0 | feature_extractor | Sequential        | 14.7 M
+1 | pool              | AdaptiveAvgPool2d | 0
+2 | classifier        | Sequential        | 121 M
+--------------------------------------------------------
+136 M     Trainable params
+0         Non-trainable params
+136 M     Total params

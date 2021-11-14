@@ -96,8 +96,8 @@ class UTKFace(Dataset):
         if self.split == 'train':
             return train_transforms(image), label
         elif self.split == 'test':
-            # return test_transforms(image), label
-            return train_transforms(image), label
+            return test_transforms(image), label
+            # return train_transforms(image), label
 
     @staticmethod
     def denormalize(image):
