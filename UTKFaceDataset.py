@@ -26,7 +26,7 @@ class UTKFace(Dataset):
                           len(f.split('_')) == 4 and  # wrong names
                           f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
                                     '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
-                          and random.randint(1, 10) == 1  # only keep 1/10 of data
+                          and random.randint(1, 1000) <= 113  # only keep 1/10 of data
                           # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
                           ]
         test_indices = random.sample(range(0, len(self.filenames)), 300)
