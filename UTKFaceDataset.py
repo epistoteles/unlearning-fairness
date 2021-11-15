@@ -5,6 +5,7 @@ from os.path import isfile, join
 from PIL import Image
 from torchvision import transforms
 import random
+import utils
 
 torch.set_printoptions(linewidth=120)
 
@@ -12,32 +13,54 @@ torch.set_printoptions(linewidth=120)
 class UTKFace(Dataset):
     """Characterizes the UTKFace dataset for PyTorch"""
 
-    def __init__(self, split, image_dir='UTKFace', label='age'):
+    def __init__(self,
+                 split,
+                 num_shards,
+                 current_shard,
+                 num_slices,
+                 current_slice,
+                 image_dir='UTKFace',
+                 label='age'
+                 ):
         if label not in ['age', 'gender', 'race']:
             raise ValueError(f"Unknown label type '{label}', use 'age', 'gender' or 'race'")
         if split not in ['train', 'test', 'all']:
             raise ValueError(f"Unknown split type '{label}', use 'train', 'test' or 'all'")
+        if current_shard < 0 or current_shard >= num_shards:
+            raise ValueError(f"Invalid shard number")
+        if current_slice < 0 or current_slice >= num_slices:
+            raise ValueError(f"Invalid slice number")
+
         self.label = label
         self.split = split
         self.image_dir = image_dir
-        random.seed(42)
+        self.current_shard = current_shard,
+        self.num_shards = num_shards,
+        self.current_slice = current_slice,
+        self.num_slices = num_slices,
+
         self.filenames = [f for f in listdir(image_dir) if
                           isfile(join(image_dir, f)) and
                           len(f.split('_')) == 4 and  # wrong names
                           f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
-                                    '1_0_0_20170109194120301.jpg.chip.jpg'}  # damaged 👀
-                          and random.randint(1, 1000) <= 113  # only keep 1/10 of data
-                          # and (f.split('_')[0] != 26 or bool(random.getrandbits(1)))  # throw away 50% of 26-year-olds
-                          ]
-        test_indices = random.sample(range(0, len(self.filenames)), 300)
+                                    '1_0_0_20170109194120301.jpg.chip.jpg'}]  # damaged 👀
+
+        indices = utils.get_counts(len(self.filenames),
+                                   num_shards=self.num_shards,
+                                   num_slices=self.num_slices,
+                                   return_indices=True)
+
+        random.seed(42)
         if self.split == 'train':
-            self.filenames = [f for i, f in enumerate(self.filenames) if i not in test_indices]
+            self.filenames = [f for i, f in enumerate(self.filenames) if i in
+                              indices[current_shard * num_slices + current_slice]]
             random.shuffle(self.filenames)
         elif self.split == 'test':
-            self.filenames = [f for i, f in enumerate(self.filenames) if i in test_indices]
+            self.filenames = [f for i, f in enumerate(self.filenames) if i in indices[-1]]
             random.shuffle(self.filenames)
         elif self.split == 'all':
             random.shuffle(self.filenames)
+
         self.images = []
         self.ages = list(map(lambda x: int(x.split('_')[0]), self.filenames))
         self.genders = list(map(lambda x: int(x.split('_')[1]), self.filenames))

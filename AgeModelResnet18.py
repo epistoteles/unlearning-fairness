@@ -9,8 +9,20 @@ from torchvision import models
 
 
 class AgeModelResnet18(LightningModule):
-    def __init__(self):
+
+    def __init__(self,
+                 current_shard=1,
+                 num_shards=1,
+                 current_slice=1,
+                 num_slices=1
+                 ):
         super().__init__()
+
+        # set SISA params
+        self.current_shard = current_shard,
+        self.num_shards = num_shards,
+        self.current_slice = current_slice,
+        self.num_slices = num_slices,
 
         # set hyperparams
         self.label = 'age'
@@ -64,7 +76,6 @@ class AgeModelResnet18(LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[6, 9, 12], gamma=0.2)
-        # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=1, factor=0.2)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss_epoch"}
 
     def training_step(self, batch, batch_idx):
@@ -109,8 +120,16 @@ class AgeModelResnet18(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        self.train_data = UTKFace(split='train', label=self.label)
-        self.val_data = UTKFace(split='test', label=self.label)
+        self.train_data = UTKFace(split='train', label=self.label,
+                                  current_shard=self.current_shard,
+                                  num_shards=self.num_shards,
+                                  current_slice=self.current_slice,
+                                  num_slices=self.num_slices)
+        self.val_data = UTKFace(split='test', label=self.label,
+                                current_shard=self.current_shard,
+                                num_shards=self.num_shards,
+                                current_slice=self.current_slice,
+                                num_slices=self.num_slices)
 
     def train_dataloader(self):
         train_loader = DataLoader(self.train_data, batch_size=128, num_workers=4)
