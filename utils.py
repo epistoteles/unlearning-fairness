@@ -32,7 +32,9 @@ def get_counts(length, num_shards, num_slices, test=0.1, return_indices=False):
 
 
 def random_run_name():
-    animals = ['bear', 'tiger', 'puma', 'scorpion', 'owl', 'salmon']
+    animals = ['bear', 'tiger', 'panther', 'scorpion', 'owl', 'salmon']
     adjectives = ['lazy', 'happy', 'green', 'blue', 'hungry', 'warm', 'royal', 'bored', 'marble', 'striped',
                   'brown', 'toxic', 'siberian', 'musical']
     return f"{random.choice(adjectives)}-{random.choice(animals)}"
+
+

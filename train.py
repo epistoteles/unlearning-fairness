@@ -3,11 +3,12 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning import Trainer
 from AgeModelResnet18 import AgeModelResnet18
 import itertools
-from random_word import RandomWords
+import wandb
 from utils import random_run_name
 
 
 run_name = random_run_name()
+print(f"Starting experiment run {run_name} ...")
 
 num_shards = 5
 num_slices = 2
@@ -37,3 +38,5 @@ for current_shard, current_slice in itertools.product(range(num_shards), range(n
     trainer = Trainer(max_epochs=15, gpus=1, logger=logger, callbacks=[lr_monitor_cb, checkpoint_cb])
 
     trainer.fit(model)
+    wandb.finish()
+
