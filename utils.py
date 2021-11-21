@@ -1,3 +1,5 @@
+import random
+
 import torch
 
 
@@ -27,3 +29,10 @@ def get_counts(length, num_shards, num_slices, test=0.1, return_indices=False):
         return lengths
     else:
         return random_split(range(length), lengths, random_seed=42)
+
+
+def random_run_name():
+    animals = ['bear', 'tiger', 'puma', 'scorpion', 'owl', 'salmon']
+    adjectives = ['lazy', 'happy', 'green', 'blue', 'hungry', 'warm', 'royal', 'bored', 'marble', 'striped',
+                  'brown', 'toxic', 'siberian', 'musical']
+    return f"{random.choice(adjectives)}-{random.choice(animals)}"

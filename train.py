@@ -4,9 +4,10 @@ from pytorch_lightning import Trainer
 from AgeModelResnet18 import AgeModelResnet18
 import itertools
 from random_word import RandomWords
+from utils import random_run_name
 
-r = RandomWords()
-run_name = 'happy-bear'
+
+run_name = random_run_name()
 
 num_shards = 5
 num_slices = 2
