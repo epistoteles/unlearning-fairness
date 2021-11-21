@@ -3,6 +3,10 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning import Trainer
 from AgeModelResnet18 import AgeModelResnet18
 import itertools
+from random_word import RandomWords
+
+r = RandomWords()
+run_name = 'happy-bear'
 
 num_shards = 5
 num_slices = 2
@@ -22,11 +26,11 @@ for current_shard, current_slice in itertools.product(range(num_shards), range(n
             num_slices=num_slices)
 
 
-    logger = WandbLogger(project="age-classifier", entity='epistoteles')
+    logger = WandbLogger(project="age-classifier", entity='epistoteles', id=f'{run_name}-shard-{current_shard}-slice-{current_slice}')
     lr_monitor_cb = LearningRateMonitor(logging_interval='epoch')
     checkpoint_cb = ModelCheckpoint(monitor=None,  # saves checkpoint for last epoch
-                                    dirpath="checkpoints/run2/",
-                                    filename=f"agemodel-shard={current_shard}-slice={current_slice}",
+                                    dirpath=f"checkpoints/{run_name}/",
+                                    filename=f"{run_name}-shard={current_shard}-slice={current_slice}",
                                     save_top_k=1,
                                     save_weights_only=True)
     trainer = Trainer(max_epochs=15, gpus=1, logger=logger, callbacks=[lr_monitor_cb, checkpoint_cb])
