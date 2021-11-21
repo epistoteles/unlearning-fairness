@@ -19,7 +19,7 @@ for current_shard, current_slice in itertools.product(range(num_shards), range(n
                                  num_slices=num_slices)
     else:  # later slices with pretrained checkpoints
         model = AgeModelResnet18.load_from_checkpoint(
-            f'checkpoints/run1/agemodel-shard={current_shard}-slice={current_slice - 1}.ckpt',
+            f'checkpoints/{run_name}/{run_name}-shard={current_shard}-slice={current_slice - 1}.ckpt',
             current_shard=current_shard,
             num_shards=num_shards,
             current_slice=current_slice,
