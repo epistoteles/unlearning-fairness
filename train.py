@@ -21,6 +21,7 @@ for current_shard, current_slice in itertools.product(range(num_shards), range(n
             current_slice=current_slice,
             num_slices=num_slices)
 
+
     logger = WandbLogger(project="age-classifier", entity='epistoteles')
     lr_monitor_cb = LearningRateMonitor(logging_interval='epoch')
     checkpoint_cb = ModelCheckpoint(monitor=None,  # saves checkpoint for last epoch
