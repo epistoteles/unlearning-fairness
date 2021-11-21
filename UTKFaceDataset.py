@@ -22,6 +22,14 @@ class UTKFace(Dataset):
                  image_dir='UTKFace',
                  label='age'
                  ):
+        if type(num_shards) is tuple:
+            num_shards = num_shards[0]
+        if type(num_slices) is tuple:
+            num_slices = num_slices[0]
+        if type(current_shard) is tuple:
+            current_shard = current_shard[0]
+        if type(current_slice) is tuple:
+            current_slice = current_slice[0]
         if label not in ['age', 'gender', 'race']:
             raise ValueError(f"Unknown label type '{label}', use 'age', 'gender' or 'race'")
         if split not in ['train', 'test', 'all']:
