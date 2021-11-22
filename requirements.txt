@@ -1,9 +1,11 @@
 shortuuid==1.0.1
-wandb
-matplotlib
-pillow
-torch
+wandb~=0.12.6
+matplotlib~=3.4.3
+pillow~=8.4.0
+torch~=1.10.0
 pytorch-lightning
-torchvision
-torchmetrics
+torchvision~=0.11.1
+torchmetrics~=0.6.0
 random-word
+scipy~=1.7.2
+numpy~=1.21.4

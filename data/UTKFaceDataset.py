@@ -7,6 +7,7 @@ from torchvision import transforms
 import random
 import utils
 from data.Face import Face
+from sampler.Sampler import Sampler
 
 
 class UTKFaceDataset(Dataset):
@@ -68,6 +69,7 @@ class UTKFaceDataset(Dataset):
         elif self.split == 'all':
             random.shuffle(filenames)
 
+        sampler = Sampler(strategy=['gender', 'race'])
         self.faces = []
         for f in filenames:
             image_path = join(self.image_dir, f)
@@ -76,7 +78,7 @@ class UTKFaceDataset(Dataset):
             age = int(f.split('_')[0])
             gender = int(f.split('_')[1])
             race = int(f.split('_')[2])
-            face = Face(image=keep, age=age, gender=gender, race=race, filename=f)
+            face = Face(image=keep, age=age, gender=gender, race=race, filename=f, sampler=sampler)
             self.faces.append(face)
             temp.close()
 

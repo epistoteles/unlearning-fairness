@@ -37,7 +37,7 @@ for current_shard, current_slice in itertools.product(range(num_shards), range(n
                                     dirpath=f"checkpoints/{run_name}/",
                                     filename=f"{run_name}-shard={current_shard}-slice={current_slice}",
                                     save_weights_only=True)
-    trainer = Trainer(max_epochs=13, gpus=1, logger=logger, callbacks=[lr_monitor_cb, checkpoint_cb])
+    trainer = Trainer(max_epochs=15, gpus=1, logger=logger, callbacks=[lr_monitor_cb, checkpoint_cb])
 
     trainer.fit(model)
     wandb.finish()
