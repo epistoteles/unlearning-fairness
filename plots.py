@@ -1,10 +1,7 @@
-from UTKFaceDataset import UTKFace
+from data.UTKFaceDataset import UTKFaceDataset
 import numpy as np
 import matplotlib.pyplot as plt
-import random
 import torchvision.transforms.functional as F
-from torchvision.utils import make_grid
-from torch.utils.data import ConcatDataset
 from collections import Counter
 
 
@@ -19,7 +16,7 @@ def show(imgs):
         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
 
 
-dataset = UTKFace(split='all')
+dataset = UTKFaceDataset(split='all')
 
 plt.rcParams["savefig.bbox"] = 'tight'
 

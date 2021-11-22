@@ -1,60 +1,50 @@
 import torch
 from torch import nn
-from torch.utils.data import random_split, DataLoader
+from torch.utils.data import DataLoader
 from pytorch_lightning import LightningModule
 from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
-from UTKFaceDataset import UTKFace
-from torchvision import models
+from data.UTKFaceDataset import UTKFaceDataset
 
 
-class AgeModelVGG(LightningModule):
+class AgeModelCNN(LightningModule):
     def __init__(self):
         super().__init__()
 
         # set hyperparams
         self.label = 'age'
-        self.initial_lr = 1e-4
-        self.milestones = list(range(2, 11, 2))  # try [2, 4, 6, 10, 15, 18] ?
-        self.gamma = 0.6
-        if self.label == 'age':
-            self.num_target_classes = 7
-        elif self.label == 'race':
-            self.num_target_classes = 5
-        elif self.label == 'gender':
-            self.num_target_classes = 2
+        self.initial_lr = 1e-3
 
-        # init a pretrained resnet
-        backbone = models.vgg16(pretrained=False)
-        self.feature_extractor = list(backbone.children())[0]
-        self.pool = nn.AdaptiveAvgPool2d(output_size=(7, 7))
-        self.classifier = nn.Sequential(
-            nn.Linear(in_features=25088, out_features=4096),
-            nn.ReLU(),
-            nn.Dropout(p=0.5),
-            nn.Linear(in_features=4096, out_features=4096),
-            nn.ReLU(),
-            nn.Dropout(p=0.5),
-            nn.Linear(in_features=4096, out_features=512),
-            nn.ReLU(),
-            nn.Dropout(p=0.5),
-            nn.Linear(in_features=512, out_features=self.num_target_classes)
-        )
+        # build custom CNN
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3)
+        self.pool1 = nn.AvgPool2d(kernel_size=2)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
+        self.pool2 = nn.AvgPool2d(kernel_size=2)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        self.pool3 = nn.AvgPool2d(kernel_size=2)
+        self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        self.pool4 = nn.AvgPool2d(kernel_size=20)
+        self.flatten5 = nn.Flatten()
+        self.fc5 = nn.Linear(in_features=256, out_features=132)
+        self.relu5 = nn.ReLU()
+        self.fc6 = nn.Linear(in_features=132, out_features=7)
 
         # filled in setup()
         self.train_data = None
         self.val_data = None
 
     def forward(self, x):
-        x = self.feature_extractor(x)
-        x = self.pool(x)
-        x = self.classifier(x)
+        x = self.pool1(self.conv1(x))
+        x = self.pool2(self.conv2(x))
+        x = self.pool3(self.conv3(x))
+        x = self.pool4(self.conv4(x))
+        x = self.relu5(self.fc5(self.flatten5(x)))
+        x = self.fc6(x)
         return x
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.initial_lr)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.milestones, gamma=self.gamma)
-        return [optimizer], [scheduler]
+        return optimizer
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -62,13 +52,18 @@ class AgeModelVGG(LightningModule):
         loss_function = nn.CrossEntropyLoss()
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
-        conf_matrix = ConfusionMatrix(num_classes=self.num_target_classes, normalize='true')
+        conf_matrix = ConfusionMatrix(num_classes=7, normalize='true')
         self.log("batch_acc", acc, prog_bar=True)
         return {'loss': loss, 'accuracy': acc, 'conf_matrix': conf_matrix}
 
     def validation_step(self, batch, batch_idx):
-        results = self.training_step(batch, batch_idx)
-        return results
+        x, y = batch
+        logits = self(x)
+        loss_function = nn.CrossEntropyLoss()
+        loss = loss_function(logits, y)
+        acc = accuracy(logits, y)
+        self.log("batch_acc", acc, prog_bar=True)
+        return {'loss': loss, 'accuracy': acc}
 
     def training_epoch_end(self, train_step_outputs):
         avg_train_loss = torch.tensor([x['loss'] for x in train_step_outputs]).mean()
@@ -84,8 +79,8 @@ class AgeModelVGG(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        self.train_data = UTKFace(split='train', label=self.label)
-        self.val_data = UTKFace(split='test', label=self.label)
+        self.train_data = UTKFaceDataset(split='train', label=self.label)
+        self.val_data = UTKFaceDataset(split='test', label=self.label)
 
     def train_dataloader(self):
         train_loader = DataLoader(self.train_data, batch_size=64, num_workers=4)

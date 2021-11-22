@@ -6,11 +6,10 @@ from PIL import Image
 from torchvision import transforms
 import random
 import utils
+from data.Face import Face
 
-torch.set_printoptions(linewidth=120)
 
-
-class UTKFace(Dataset):
+class UTKFaceDataset(Dataset):
     """Characterizes the UTKFace dataset for PyTorch"""
 
     def __init__(self,
@@ -19,7 +18,7 @@ class UTKFace(Dataset):
                  current_shard,
                  num_slices,
                  current_slice,
-                 image_dir='UTKFace',
+                 image_dir='../UTKFace',
                  label='age'
                  ):
         if type(num_shards) is tuple:
@@ -47,64 +46,55 @@ class UTKFace(Dataset):
         self.current_slice = current_slice,
         self.num_slices = num_slices,
 
-        self.filenames = [f for f in listdir(image_dir) if
-                          isfile(join(image_dir, f)) and
-                          len(f.split('_')) == 4 and  # wrong names
-                          f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
-                                    '1_0_0_20170109194120301.jpg.chip.jpg'}]  # damaged 👀
+        filenames = [f for f in listdir(image_dir) if
+                     isfile(join(image_dir, f)) and
+                     len(f.split('_')) == 4 and  # wrong names
+                     f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
+                               '1_0_0_20170109194120301.jpg.chip.jpg'}]  # damaged 👀
 
-        indices = utils.get_counts(len(self.filenames),
+        indices = utils.get_counts(len(filenames),
                                    num_shards=self.num_shards,
                                    num_slices=self.num_slices,
                                    return_indices=True)
 
         random.seed(42)
         if self.split == 'train':
-            self.filenames = [f for i, f in enumerate(self.filenames) if i in
-                              indices[current_shard * num_slices + current_slice]]
-            random.shuffle(self.filenames)
+            filenames = [f for i, f in enumerate(filenames) if i in
+                         indices[current_shard * num_slices + current_slice]]
+            random.shuffle(filenames)
         elif self.split == 'test':
-            self.filenames = [f for i, f in enumerate(self.filenames) if i in indices[-1]]
-            random.shuffle(self.filenames)
+            filenames = [f for i, f in enumerate(filenames) if i in indices[-1]]
+            random.shuffle(filenames)
         elif self.split == 'all':
-            random.shuffle(self.filenames)
+            random.shuffle(filenames)
 
-        self.images = []
-        self.ages = list(map(lambda x: int(x.split('_')[0]), self.filenames))
-        self.genders = list(map(lambda x: int(x.split('_')[1]), self.filenames))
-        self.races = list(map(lambda x: int(x.split('_')[2]), self.filenames))
-
-        for f in self.filenames:
+        self.faces = []
+        for f in filenames:
             image_path = join(self.image_dir, f)
             temp = Image.open(image_path)
             keep = temp.copy()
-            self.images.append(keep)
+            age = int(f.split('_')[0])
+            gender = int(f.split('_')[1])
+            race = int(f.split('_')[2])
+            face = Face(image=keep, age=age, gender=gender, race=race, filename=f)
+            self.faces.append(face)
             temp.close()
 
     def __len__(self):
         """Denotes the total number of samples"""
-        return len(self.filenames)
+        return len(self.faces)
 
     def __getitem__(self, index):
         """Generates one sample of data"""
-        image = self.images[index]
+        image = self.faces[index].image
 
         label = None
         if self.label == 'age':
-            # age_bins = [5, 19, 24, 27, 30, 35, 40, 50, 61, 120]  # 10 equal sized
-            # age_bins = [4, 12, 24, 36, 48, 60, 120]  # my own choice
-            age_bins = [2, 9, 20, 27, 45, 65, 120]  # from tds blog post
-            age = self.ages[index]
-            for idx, age_bin in enumerate(age_bins):
-                if age <= age_bin:
-                    label = idx
-                    break
-            if label is None:  # if label was not changed above
-                raise ValueError(f'Unknown age encountered: {age}')
+            label = self.faces[index].age_bin
         elif self.label == 'gender':
-            label = self.genders[index]  # 0 = male, 1 = female
+            label = self.faces[index].gender  # 0 = male, 1 = female
         elif self.label == 'race':
-            label = self.races[index]  # 0 = white, 1 = black, 2 = asian, 3 = indian, 4 = others
+            label = self.faces[index].race  # 0 = white, 1 = black, 2 = asian, 3 = indian, 4 = others
 
         train_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
@@ -112,14 +102,12 @@ class UTKFace(Dataset):
             transforms.RandomAffine(degrees=15, translate=None, scale=(0.85, 1.2), shear=10, fill=128),
             transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.)),
             transforms.RandomAutocontrast(),
-            # transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             transforms.Lambda(lambda x: x + torch.tensor(0.15, dtype=torch.float32) * torch.randn_like(x)),  # noise
         ])
 
         test_transforms = transforms.Compose([
-            # transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
@@ -128,13 +116,12 @@ class UTKFace(Dataset):
             return train_transforms(image), label
         elif self.split == 'test':
             return test_transforms(image), label
-            # return train_transforms(image), label
 
     @staticmethod
     def denormalize(image):
         """Undoes the normalization transform for viewing and plotting"""
         denorm = transforms.Compose([
-            transforms.Normalize(mean=[0., 0., 0.], std=[1/0.229, 1/0.224, 1/0.225]),
+            transforms.Normalize(mean=[0., 0., 0.], std=[1 / 0.229, 1 / 0.224, 1 / 0.225]),
             transforms.Normalize(mean=[-0.485, -0.456, -0.406], std=[1., 1., 1.])
         ])
         return denorm(image)

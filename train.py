@@ -1,7 +1,7 @@
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning import Trainer
-from AgeModelResnet18 import AgeModelResnet18
+from model.AgeModelResnet18 import AgeModelResnet18
 import itertools
 import wandb
 from utils import random_run_name

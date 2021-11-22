@@ -1,10 +1,10 @@
 import torch
 from torch import nn
-from torch.utils.data import random_split, DataLoader
+from torch.utils.data import DataLoader
 from pytorch_lightning import LightningModule
 from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy, f1
-from UTKFaceDataset import UTKFace
+from data.UTKFaceDataset import UTKFaceDataset
 from torchvision import models
 
 
@@ -120,16 +120,16 @@ class AgeModelResnet18(LightningModule):
         return {'val_loss': avg_val_loss, 'val_acc': avg_val_acc}
 
     def setup(self, stage):
-        self.train_data = UTKFace(split='train', label=self.label,
-                                  current_shard=self.current_shard,
-                                  num_shards=self.num_shards,
-                                  current_slice=self.current_slice,
-                                  num_slices=self.num_slices)
-        self.val_data = UTKFace(split='test', label=self.label,
-                                current_shard=self.current_shard,
-                                num_shards=self.num_shards,
-                                current_slice=self.current_slice,
-                                num_slices=self.num_slices)
+        self.train_data = UTKFaceDataset(split='train', label=self.label,
+                                         current_shard=self.current_shard,
+                                         num_shards=self.num_shards,
+                                         current_slice=self.current_slice,
+                                         num_slices=self.num_slices)
+        self.val_data = UTKFaceDataset(split='test', label=self.label,
+                                       current_shard=self.current_shard,
+                                       num_shards=self.num_shards,
+                                       current_slice=self.current_slice,
+                                       num_slices=self.num_slices)
 
     def train_dataloader(self):
         train_loader = DataLoader(self.train_data, batch_size=128, num_workers=4)
