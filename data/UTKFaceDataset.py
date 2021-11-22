@@ -18,7 +18,7 @@ class UTKFaceDataset(Dataset):
                  current_shard,
                  num_slices,
                  current_slice,
-                 image_dir='../UTKFace',
+                 image_dir='UTKFace',
                  label='age'
                  ):
         if type(num_shards) is tuple:
