@@ -3,7 +3,7 @@ from os.path import join
 
 from torch import nn
 from torch.utils.data import DataLoader
-from torchmetrics.functional import accuracy
+from torchmetrics.functional import accuracy, f1
 
 from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
@@ -43,7 +43,9 @@ for checkpoint_path in checkpoints[1:]:
 loss_function = nn.CrossEntropyLoss()
 loss = loss_function(logits, Y)
 acc = accuracy(logits, Y)
+macro_f1 = f1(logits, Y, average='macro', num_classes=7)
 
-print(f'{loss=}')
-print(f'{acc=}')
+print(f'Loss: {loss}')
+print(f'Accuracy: {acc}')
+print(f'Macro F1: {macro_f1}')
 
