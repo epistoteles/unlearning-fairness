@@ -16,9 +16,9 @@ class UTKFaceDataset(Dataset):
     def __init__(self,
                  split,
                  num_shards=1,
-                 current_shard=1,
+                 current_shard=0,
                  num_slices=1,
-                 current_slice=1,
+                 current_slice=0,
                  image_dir='UTKFace',
                  label='age'
                  ):
@@ -35,9 +35,9 @@ class UTKFaceDataset(Dataset):
         if split not in ['train', 'test', 'all']:
             raise ValueError(f"Unknown split type '{label}', use 'train', 'test' or 'all'")
         if current_shard < 0 or current_shard >= num_shards:
-            raise ValueError(f"Invalid shard number")
+            raise ValueError(f"Invalid shard number: {current_shard}")
         if current_slice < 0 or current_slice >= num_slices:
-            raise ValueError(f"Invalid slice number")
+            raise ValueError(f"Invalid slice number: {current_slice}")
 
         self.label = label
         self.split = split

@@ -11,9 +11,9 @@ from torchvision import models
 class AgeModelResnet18(LightningModule):
 
     def __init__(self,
-                 current_shard=1,
+                 current_shard=0,
                  num_shards=1,
-                 current_slice=1,
+                 current_slice=0,
                  num_slices=1
                  ):
         super().__init__()
