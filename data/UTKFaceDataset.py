@@ -15,10 +15,10 @@ class UTKFaceDataset(Dataset):
 
     def __init__(self,
                  split,
-                 num_shards,
-                 current_shard,
-                 num_slices,
-                 current_slice,
+                 num_shards=1,
+                 current_shard=1,
+                 num_slices=1,
+                 current_slice=1,
                  image_dir='UTKFace',
                  label='age'
                  ):

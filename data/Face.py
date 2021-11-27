@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from PIL import Image
+from PIL.Image import Image
 from sampler.Sampler import Sampler
 
 
 @dataclass(frozen=True)
 class Face:
-    image: Image.Image
+    image: Image
     age: int
     gender: int  # 0 = male, 1 = female
     race: int  # 0 = white, 1 = black, 2 = asian, 3 = indian, 4 = others
