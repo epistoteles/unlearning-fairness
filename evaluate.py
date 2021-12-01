@@ -29,8 +29,10 @@ for c in checkpoints:
     print(f'   {c}')
 
 test_data = UTKFaceDataset(split='test')
+print(len(test_data))
 test_dataloader = DataLoader(test_data, batch_size=len(test_data), num_workers=4)
 X, Y = next(iter(test_dataloader))
+print(len(X))
 
 model = AgeModelResnet18.load_from_checkpoint(checkpoints[0])
 model.eval()
