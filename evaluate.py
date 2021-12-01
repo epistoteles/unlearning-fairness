@@ -1,3 +1,4 @@
+import sys
 from os import listdir
 from os.path import join
 
@@ -33,16 +34,21 @@ print(len(test_data))
 test_dataloader = DataLoader(test_data, batch_size=len(test_data), num_workers=4)
 X, Y = next(iter(test_dataloader))
 print(len(X))
+print(sys.getsizeof(X))
 
 model = AgeModelResnet18.load_from_checkpoint(checkpoints[0])
 model.eval()
-logits = model(X)
+logits = model.forward(X)
 # del model
 # for checkpoint_path in checkpoints[1:]:
 #     model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
 #     model.eval()
 #     logits += model(X)
 #     del model
+
+print(len(logits))
+print(logits[0])
+print(sys.getsizeof(logits))
 
 loss_function = nn.CrossEntropyLoss()
 loss = loss_function(logits, Y)
