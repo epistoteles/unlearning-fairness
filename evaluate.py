@@ -35,12 +35,12 @@ X, Y = next(iter(test_dataloader))
 model = AgeModelResnet18.load_from_checkpoint(checkpoints[0])
 model.eval()
 logits = model(X)
-del model
-for checkpoint_path in checkpoints[1:]:
-    model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
-    model.eval()
-    logits += model(X)
-    del model
+# del model
+# for checkpoint_path in checkpoints[1:]:
+#     model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
+#     model.eval()
+#     logits += model(X)
+#     del model
 
 loss_function = nn.CrossEntropyLoss()
 loss = loss_function(logits, Y)
