@@ -51,12 +51,13 @@ for batch, (X, Y) in enumerate(test_dataloader):
         with torch.no_grad():
             model.to(device)
             model.eval()
-            logits += model(X)
+            temp_logits = model(X)
             # logits += torch.rand((len(X), 7))
-        loss = loss_function(logits, Y)
-        acc = accuracy(logits, Y)
-        macro_f1 = f1(logits, Y, average='macro', num_classes=7)
+        loss = loss_function(temp_logits, Y)
+        acc = accuracy(temp_logits, Y)
+        macro_f1 = f1(temp_logits, Y, average='macro', num_classes=7)
         print(f'      Shard metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+        logits += temp_logits
     loss = loss_function(logits, Y)
     acc = accuracy(logits, Y)
     macro_f1 = f1(logits, Y, average='macro', num_classes=7)
