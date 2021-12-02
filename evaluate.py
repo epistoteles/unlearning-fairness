@@ -9,7 +9,7 @@ from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
 
 
-run_dir = 'lazy-owl'
+run_dir = 'warm-salmon'
 print(f'Evaluating run {run_dir}')
 
 checkpoints = [join('checkpoints', run_dir, f) for f in listdir(join('checkpoints', run_dir))
