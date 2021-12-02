@@ -43,7 +43,7 @@ for step, (X, Y) in enumerate(test_dataloader):
     for checkpoint_path in checkpoints:
         model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
         model.eval()
-        logits = torch.cat((logits, model(X)), 0)
+        logits += model(X)
     loss_function = nn.CrossEntropyLoss()
     losses.append(loss_function(logits, Y))
     accs.append(accuracy(logits, Y))
