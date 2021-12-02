@@ -32,8 +32,9 @@ for current_shard, current_slice in itertools.product(range(num_shards), range(n
                          group=f'{run_name}')
     lr_monitor_cb = LearningRateMonitor(logging_interval='epoch')
     checkpoint_cb = ModelCheckpoint(save_top_k=1,
-                                    # monitor=None,  # saves checkpoint for last epoch
-                                    monitor='val/macro_f1_epoch',  # saves checkpoint for best epoch
+                                    monitor=None,  # saves checkpoint for last epoch
+                                    # monitor='val/macro_f1_epoch',  # saves checkpoint for best epoch
+                                    # mode='max',  # necessary when tracking macro F1
                                     dirpath=f"checkpoints/{run_name}/",
                                     filename=f"{run_name}-shard={current_shard}-slice={current_slice}",
                                     save_weights_only=True)
