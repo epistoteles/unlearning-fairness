@@ -33,7 +33,7 @@ for c in checkpoints:
 test_data = UTKFaceDataset(split='test')
 test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
 
-device = torch.device('cuda')
+device = torch.device('cpu')
 models = []
 for model_index, checkpoint_path in enumerate(checkpoints):
     models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
