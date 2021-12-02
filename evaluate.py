@@ -44,8 +44,8 @@ macro_f1s = []
 lengths = []
 for batch, (X, Y) in enumerate(test_dataloader):
     print(f"Evaluating batch {batch} with length {len(X)}")
-    X.to(device)
-    Y.to(device)
+    X = X.to(device)
+    Y = Y.to(device)
     logits = torch.zeros((len(X), 7)).to(device)
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
