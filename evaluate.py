@@ -33,36 +33,30 @@ for c in checkpoints:
 test_data = UTKFaceDataset(split='test')
 test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
 
-model = AgeModelResnet18.load_from_checkpoint(checkpoints[0])
-model.eval()
-temp_logits = torch.Tensor()
-for step, (X, Y) in enumerate(test_dataloader):
+losses = []
+accs = []
+macro_f1s = []
+lengths = []
+for step, (X, Y) in test_dataloader:
     print(f"Step {step} with length {len(X)}")
-    temp_logits = torch.cat((temp_logits, model(X)), 0)
-logits = temp_logits
-print(len(logits))
-print(sys.getsizeof(logits))
-for checkpoint_path in checkpoints[1:]:
-    model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
-    model.eval()
-    temp_logits = torch.Tensor()
-    for step, (X, Y) in test_dataloader:
-        print(f"Step {step} with length {len(X)}")
-        temp_logits = torch.cat((temp_logits, model(X)), 0)
-    logits += temp_logits
+    logits = torch.Tensor()
+    for checkpoint_path in checkpoints:
+        model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
+        model.eval()
+        logits = torch.cat((logits, model(X)), 0)
+    loss_function = nn.CrossEntropyLoss()
+    losses.append(loss_function(logits, Y))
+    accs.append(accuracy(logits, Y))
+    macro_f1s.append(f1(logits, Y, average='macro', num_classes=7))
+    lengths.append(len(Y))
 
-print(len(logits))
-print(logits[0])
-print(sys.getsizeof(logits))
-
-Y = torch.Tensor()
-for _, y in test_dataloader:
-    Y = torch.cat((Y, y), 0)
-
-loss_function = nn.CrossEntropyLoss()
-loss = loss_function(logits, Y)
-acc = accuracy(logits, Y)
-macro_f1 = f1(logits, Y, average='macro', num_classes=7)
+loss = 0
+acc = 0
+macro_f1 = 0
+for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
+    loss += l * length/len(test_data)
+    accs += a * length/len(test_data)
+    macro_f1 += m * length/len(test_data)
 
 print(f'Loss: {loss}')
 print(f'Accuracy: {acc}')
