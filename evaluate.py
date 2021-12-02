@@ -37,10 +37,11 @@ losses = []
 accs = []
 macro_f1s = []
 lengths = []
-for step, (X, Y) in enumerate(test_dataloader):
-    print(f"Step {step} with length {len(X)}")
+for batch, (X, Y) in enumerate(test_dataloader):
+    print(f"Evaluating batch {batch} with length {len(X)}")
     logits = torch.zeros((len(X), 7))
-    for checkpoint_path in checkpoints:
+    for model_index, checkpoint_path in enumerate(checkpoints):
+        print(f'   Evaluating on shard {model_index+1}/{num_shards}')
         model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
         model.eval()
         logits += model(X)
