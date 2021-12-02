@@ -46,7 +46,6 @@ for batch, (X, Y) in enumerate(test_dataloader):
     logits = torch.zeros((len(X), 7))
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
-        model
         model.eval()
         logits += model(X)
         # logits += torch.rand((len(X), 7))
