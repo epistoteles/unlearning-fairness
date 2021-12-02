@@ -1,12 +1,10 @@
 import sys
 from os import listdir
 from os.path import join
-
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy, f1
-
 from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
 
@@ -30,7 +28,7 @@ print(f'Evaluating on following checkpoints:')
 for c in checkpoints:
     print(f'   {c}')
 
-test_data = UTKFaceDataset(split='test')
+test_data = UTKFaceDataset(split='test', label='age', num_shards=5, num_slices=2, current_shard=0, current_slice=0)
 test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
 
 device = torch.device('cpu')
@@ -58,7 +56,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
         loss = loss_function(logits, Y)
         acc = accuracy(logits, Y)
         macro_f1 = f1(logits, Y, average='macro', num_classes=7)
-        print(f'   Shard metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+        print(f'      Shard metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
     loss = loss_function(logits, Y)
     acc = accuracy(logits, Y)
     macro_f1 = f1(logits, Y, average='macro', num_classes=7)
