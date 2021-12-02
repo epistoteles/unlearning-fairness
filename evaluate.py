@@ -31,27 +31,34 @@ for c in checkpoints:
     print(f'   {c}')
 
 test_data = UTKFaceDataset(split='test')
-test_dataloader = DataLoader(test_data, batch_size=128, num_workers=4)
+test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
 
+device = torch.device('cuda')
 models = []
 for model_index, checkpoint_path in enumerate(checkpoints):
     models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
 
+loss_function = nn.CrossEntropyLoss()
 losses = []
 accs = []
 macro_f1s = []
 lengths = []
 for batch, (X, Y) in enumerate(test_dataloader):
+    X = X.to(device)
+    Y = Y.to(device)
     print(f"Evaluating batch {batch} with length {len(X)}")
     logits = torch.zeros((len(X), 7))
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
         with torch.no_grad():
+            model.to(device)
             model.eval()
             logits += model(X)
-        # logits += torch.rand((len(X), 7))
-        del model
-    loss_function = nn.CrossEntropyLoss()
+            # logits += torch.rand((len(X), 7))
+        loss = loss_function(logits, Y)
+        acc = accuracy(logits, Y)
+        macro_f1 = f1(logits, Y, average='macro', num_classes=7)
+        print(f'   Shard metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
     loss = loss_function(logits, Y)
     acc = accuracy(logits, Y)
     macro_f1 = f1(logits, Y, average='macro', num_classes=7)
