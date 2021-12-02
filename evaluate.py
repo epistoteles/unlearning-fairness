@@ -39,7 +39,7 @@ macro_f1s = []
 lengths = []
 for step, (X, Y) in enumerate(test_dataloader):
     print(f"Step {step} with length {len(X)}")
-    logits = torch.Tensor()
+    logits = torch.zeros(len(X))
     for checkpoint_path in checkpoints:
         model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
         model.eval()
