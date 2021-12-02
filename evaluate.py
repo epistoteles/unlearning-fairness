@@ -33,6 +33,10 @@ for c in checkpoints:
 test_data = UTKFaceDataset(split='test')
 test_dataloader = DataLoader(test_data, batch_size=128, num_workers=4)
 
+models = []
+for model_index, checkpoint_path in enumerate(checkpoints):
+    models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
+
 losses = []
 accs = []
 macro_f1s = []
@@ -40,9 +44,8 @@ lengths = []
 for batch, (X, Y) in enumerate(test_dataloader):
     print(f"Evaluating batch {batch} with length {len(X)}")
     logits = torch.zeros((len(X), 7))
-    for model_index, checkpoint_path in enumerate(checkpoints):
+    for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
-        model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
         model.eval()
         logits += model(X)
         del model
