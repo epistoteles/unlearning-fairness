@@ -41,6 +41,7 @@ for step, (X, Y) in enumerate(test_dataloader):
     temp_logits = torch.cat((temp_logits, model(X)), 0)
 logits = temp_logits
 print(len(logits))
+print(sys.getsizeof(logits))
 for checkpoint_path in checkpoints[1:]:
     model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
     model.eval()
@@ -53,6 +54,10 @@ for checkpoint_path in checkpoints[1:]:
 print(len(logits))
 print(logits[0])
 print(sys.getsizeof(logits))
+
+Y = torch.Tensor()
+for _, y in test_dataloader:
+    Y = torch.cat((Y, y), 0)
 
 loss_function = nn.CrossEntropyLoss()
 loss = loss_function(logits, Y)
