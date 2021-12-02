@@ -2,6 +2,7 @@ import sys
 from os import listdir
 from os.path import join
 
+import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy, f1
@@ -30,19 +31,24 @@ for c in checkpoints:
     print(f'   {c}')
 
 test_data = UTKFaceDataset(split='test')
-test_dataloader = DataLoader(test_data, batch_size=128, num_workers=4)
-X, Y = next(iter(test_dataloader))
-print(len(X))
+test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
 
 model = AgeModelResnet18.load_from_checkpoint(checkpoints[0])
 model.eval()
-logits = model(X)
-del model
+temp_logits = torch.Tensor()
+for step, (X, Y) in enumerate(test_dataloader):
+    print(f"Step {step} with length {len(X)}")
+    temp_logits = torch.cat(temp_logits, model(X))
+logits = temp_logits
+print(len(logits))
 for checkpoint_path in checkpoints[1:]:
     model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
     model.eval()
-    logits += model(X)
-    del model
+    temp_logits = torch.Tensor()
+    for step, (X, Y) in test_dataloader:
+        print(f"Step {step} with length {len(X)}")
+        temp_logits = torch.cat(temp_logits, model(X))
+    logits += temp_logits
 
 print(len(logits))
 print(logits[0])
