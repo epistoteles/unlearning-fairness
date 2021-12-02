@@ -41,14 +41,19 @@ for batch, (X, Y) in enumerate(test_dataloader):
     print(f"Evaluating batch {batch} with length {len(X)}")
     logits = torch.zeros((len(X), 7))
     for model_index, checkpoint_path in enumerate(checkpoints):
-        print(f'   Evaluating on shard {model_index+1}/{num_shards}')
+        print(f'   Doing inference on shard {model_index+1}/{num_shards}')
         model = AgeModelResnet18.load_from_checkpoint(checkpoint_path)
         model.eval()
         logits += model(X)
+        del model
     loss_function = nn.CrossEntropyLoss()
-    losses.append(loss_function(logits, Y))
-    accs.append(accuracy(logits, Y))
-    macro_f1s.append(f1(logits, Y, average='macro', num_classes=7))
+    loss = loss_function(logits, Y)
+    acc = accuracy(logits, Y)
+    macro_f1 = f1(logits, Y, average='macro', num_classes=7)
+    print(f'   Overall batch metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+    losses.append(loss)
+    accs.append(acc)
+    macro_f1s.append(macro_f1)
     lengths.append(len(Y))
 
 loss = 0
