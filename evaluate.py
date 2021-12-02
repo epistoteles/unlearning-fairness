@@ -9,7 +9,7 @@ from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
 
 
-run_dir = 'marble-tiger'
+run_dir = 'royal-tiger'
 print(f'Evaluating run {run_dir}')
 
 checkpoints = [join('checkpoints', run_dir, f) for f in listdir(join('checkpoints', run_dir))
