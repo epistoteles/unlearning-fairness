@@ -38,7 +38,7 @@ model.eval()
 temp_logits = torch.Tensor()
 for step, (X, Y) in enumerate(test_dataloader):
     print(f"Step {step} with length {len(X)}")
-    temp_logits = torch.cat(temp_logits, model(X))
+    temp_logits = torch.cat((temp_logits, model(X)), 0)
 logits = temp_logits
 print(len(logits))
 for checkpoint_path in checkpoints[1:]:
@@ -47,7 +47,7 @@ for checkpoint_path in checkpoints[1:]:
     temp_logits = torch.Tensor()
     for step, (X, Y) in test_dataloader:
         print(f"Step {step} with length {len(X)}")
-        temp_logits = torch.cat(temp_logits, model(X))
+        temp_logits = torch.cat((temp_logits, model(X)), 0)
     logits += temp_logits
 
 print(len(logits))
