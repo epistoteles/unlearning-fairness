@@ -31,7 +31,7 @@ for c in checkpoints:
     print(f'   {c}')
 
 test_data = UTKFaceDataset(split='test')
-test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
+test_dataloader = DataLoader(test_data, batch_size=128, num_workers=4)
 
 losses = []
 accs = []
