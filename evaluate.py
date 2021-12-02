@@ -33,6 +33,7 @@ for c in checkpoints:
 test_data = UTKFaceDataset(split='test')
 test_dataloader = DataLoader(test_data, batch_size=128, num_workers=4)
 
+device = torch.device("cuda")
 models = []
 for model_index, checkpoint_path in enumerate(checkpoints):
     models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
@@ -43,11 +44,14 @@ macro_f1s = []
 lengths = []
 for batch, (X, Y) in enumerate(test_dataloader):
     print(f"Evaluating batch {batch} with length {len(X)}")
-    logits = torch.zeros((len(X), 7))
+    X.to(device)
+    Y.to(device)
+    logits = torch.zeros((len(X), 7)).to(device)
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
+        model.to(device)
         model.eval()
-        logits += model(X)  
+        logits += model(X)
         # logits += torch.rand((len(X), 7))
         del model
     loss_function = nn.CrossEntropyLoss()
