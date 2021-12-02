@@ -62,13 +62,10 @@ for batch, (X, Y) in enumerate(test_dataloader):
 loss = 0
 acc = 0
 macro_f1 = 0
-print(losses)
-print(accs)
-print(macro_f1s)
 for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
-    loss += l.item() * length/len(test_data)
-    accs += a.item() * length/len(test_data)
-    macro_f1 += m.item() * length/len(test_data)
+    loss += l.numpy() * length/len(test_data)
+    accs += a.numpy() * length/len(test_data)
+    macro_f1 += m.numpy() * length/len(test_data)
 
 print(f'Loss: {loss}')
 print(f'Accuracy: {acc}')
