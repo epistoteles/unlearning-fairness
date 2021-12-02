@@ -47,7 +47,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
         model.eval()
-        logits += torch.zeros((len(X), 7))  # model(X)
+        logits += torch.rand((len(X), 7))  # model(X)
         del model
     loss_function = nn.CrossEntropyLoss()
     loss = loss_function(logits, Y)
@@ -62,6 +62,9 @@ for batch, (X, Y) in enumerate(test_dataloader):
 loss = 0
 acc = 0
 macro_f1 = 0
+print(losses)
+print(accs)
+print(macro_f1s)
 for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
     loss += l * length/len(test_data)
     accs += a * length/len(test_data)
