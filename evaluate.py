@@ -37,7 +37,7 @@ losses = []
 accs = []
 macro_f1s = []
 lengths = []
-for step, (X, Y) in test_dataloader:
+for step, (X, Y) in enumerate(test_dataloader):
     print(f"Step {step} with length {len(X)}")
     logits = torch.Tensor()
     for checkpoint_path in checkpoints:
