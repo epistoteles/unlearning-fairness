@@ -7,9 +7,13 @@ from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy, f1
 from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
+import argparse
 
-
-run_dir = 'royal-tiger'
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('run_dir', metavar='run_dir', type=str, nargs='+',
+                    help='an integer for the accumulator')
+args = parser.parse_args()
+run_dir = args.run_dir
 print(f'Evaluating run {run_dir}')
 
 checkpoints = [join('checkpoints', run_dir, f) for f in listdir(join('checkpoints', run_dir))
