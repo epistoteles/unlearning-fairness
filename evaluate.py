@@ -10,8 +10,7 @@ from model.AgeModelResnet18 import AgeModelResnet18
 import argparse
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('run_dir', metavar='run_dir', type=str, nargs='+',
-                    help='an integer for the accumulator')
+parser.add_argument('run_dir', metavar='run_dir', type=str, nargs='1', help='the run you want to evaluate')
 args = parser.parse_args()
 run_dir = args.run_dir
 print(f'Evaluating run {run_dir}')
