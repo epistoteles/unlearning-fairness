@@ -48,7 +48,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
     Y = Y.to(device)
     print(f"Evaluating batch {batch} with length {len(X)}")
-    logits = torch.zeros((len(X), 7))
+    logits = torch.zeros((len(X), 7)).to(device)
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
         with torch.no_grad():
