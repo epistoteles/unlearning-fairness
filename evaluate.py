@@ -56,9 +56,9 @@ for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
     Y = Y.to(device)
     print(f"Evaluating subgroup {test_groups[batch]} with length {len(X)}")
+    print(f'Y = {Y}')
     logits = torch.zeros((len(X), 7)).to(device)
     for model_index, model in enumerate(models):
-        print(f'   Doing inference on shard {model_index+1}/{num_shards}')
         with torch.no_grad():
             model.to(device)
             model.eval()
@@ -67,7 +67,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
         loss = loss_function(temp_logits, Y)
         acc = accuracy(temp_logits, Y)
         macro_f1 = f1(temp_logits, Y, average='macro', num_classes=7)
-        print(f'      Shard metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+        print(f'   Shard {model_index+1}/{num_shards} metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
         logits += temp_logits
     loss = loss_function(logits, Y)
     acc = accuracy(logits, Y)
