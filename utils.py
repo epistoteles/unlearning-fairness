@@ -25,6 +25,7 @@ def balanced_split(filenames, lengths, random_seed, test_samples):
             if len(candidates) < test_samples:
                 raise ValueError(f'Not enough samples with race {race} and age bin {age_bin}: {len(candidates)} < {test_samples}')
             selected = random.sample(candidates, test_samples)
+            print(selected)
             selected_indices = list(map(lambda x: x[0], selected))
             test_indices += selected_indices
     remaining_indices = [x for x in indices if x not in test_indices]
