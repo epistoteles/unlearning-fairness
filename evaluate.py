@@ -33,7 +33,8 @@ for c in checkpoints:
     print(f'   {c}')
 
 test_data = UTKFaceDataset(split='test', label='age', num_shards=5, num_slices=2, current_shard=0, current_slice=0)
-test_dataloader = DataLoader(test_data, batch_size=9, num_workers=4)
+test_dataloader = DataLoader(test_data, batch_size=9, num_workers=4,
+                             sampler=torch.utils.data.SequentialSampler(test_data))
 
 device = torch.device('cuda')
 models = []
@@ -54,7 +55,7 @@ lengths = []
 for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
     Y = Y.to(device)
-    print(f"Evaluating group {test_groups[batch]} with length {len(X)}")
+    print(f"Evaluating subgroup {test_groups[batch]} with length {len(X)}")
     logits = torch.zeros((len(X), 7)).to(device)
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
@@ -71,11 +72,18 @@ for batch, (X, Y) in enumerate(test_dataloader):
     loss = loss_function(logits, Y)
     acc = accuracy(logits, Y)
     macro_f1 = f1(logits, Y, average='macro', num_classes=7)
-    print(f'   Overall batch metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+    print(f'   Overall subgroup metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
     losses.append(loss)
     accs.append(acc)
     macro_f1s.append(macro_f1)
     lengths.append(len(Y))
+    if batch % 7 == 6:
+        print('-'*10)
+        print(f"Average metrics for race '{test_groups[batch][0]}':")
+        print(f'   Loss: {sum(losses[-7:])/7}')
+        print(f'   Accuracy: {sum(acc[-7:])/7}')
+        print(f'   Macro F1: {sum(macro_f1[-7:])/7}')
+        print('-'*10)
 
 loss = 0
 acc = 0
@@ -85,8 +93,9 @@ for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
     acc += a.cpu().numpy() * length/len(test_data)
     macro_f1 += m.cpu().numpy() * length/len(test_data)
 
+print('-' * 10)
 print(f'Overall results:')
 print(f'   Loss: {loss}')
 print(f'   Accuracy: {acc}')
 print(f'   Macro F1: {macro_f1}')
-
+print('-' * 10)
