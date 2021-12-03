@@ -33,6 +33,9 @@ class AgeModelResnet18(LightningModule):
             self.num_target_classes = 5
         elif self.label == 'gender':
             self.num_target_classes = 2
+        self.loss_weights = torch.Tensor(
+                [1 / 0.07 / 7, 1 / 0.063 / 7, 1 / 0.079 / 7, 1 / 0.242 / 7,
+                 1 / 0.332 / 7, 1 / 0.17 / 7, 1 / 0.074 / 7]).cuda()  # for weighting loss of unbalanced classes
 
         # use first 3 parts as frozen feature extractor to save training time
         pretrained_layers = list(models.resnet18(pretrained=True).children())[:-7]
@@ -82,7 +85,7 @@ class AgeModelResnet18(LightningModule):
         x, y = batch
         logits = self(x)
         loss_function = nn.CrossEntropyLoss(  # add weight 1/proportion for balancing :) maybe label smoothing too
-            weight=torch.Tensor([1/0.07/7, 1/0.063/7, 1/0.079/7, 1/0.242/7, 1/0.332/7, 1/0.17/7, 1/0.074/7])
+            weight=
         )
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
