@@ -61,12 +61,10 @@ class UTKFaceDataset(Dataset):
 
         random.seed(42)
         if self.split == 'train':
-            filenames = [f for i, f in enumerate(filenames) if i in
-                         indices[current_shard * num_slices + current_slice]]
+            filenames = [filenames[i] for i in indices[current_shard * num_slices + current_slice]]
             random.shuffle(filenames)
         elif self.split == 'test':
-            filenames = [f for i, f in enumerate(filenames) if i in indices[-1]]
-            # random.shuffle(filenames)
+            filenames = [filenames[i] for i in indices[-1]]
         elif self.split == 'all':
             random.shuffle(filenames)
 
