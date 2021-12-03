@@ -74,9 +74,9 @@ loss = 0
 acc = 0
 macro_f1 = 0
 for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
-    loss += l.numpy() * length/len(test_data)
-    acc += a.numpy() * length/len(test_data)
-    macro_f1 += m.numpy() * length/len(test_data)
+    loss += l.cpu().numpy() * length/len(test_data)
+    acc += a.cpu().numpy() * length/len(test_data)
+    macro_f1 += m.cpu().numpy() * length/len(test_data)
 
 print(f'Loss: {loss}')
 print(f'Accuracy: {acc}')
