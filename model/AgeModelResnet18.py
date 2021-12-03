@@ -84,7 +84,7 @@ class AgeModelResnet18(LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss_function = nn.CrossEntropyLoss(label_smoothing=0.1)  # label_smooting=0.1, weight=self.loss_weights
+        loss_function = nn.CrossEntropyLoss(label_smoothing=0.1)  # weight=self.loss_weights -> worse
         loss = loss_function(logits, y)
         acc = accuracy(logits, y)
         macro_f1 = f1(logits, y, average='macro', num_classes=7)
