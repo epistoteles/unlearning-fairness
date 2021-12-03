@@ -12,7 +12,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('run_dir', type=str, nargs=1, help='the run you want to evaluate')
 args = parser.parse_args()
-run_dir = args.run_dir
+run_dir = args.run_dir[0]
 print(f'Evaluating run {run_dir}')
 
 checkpoints = [join('checkpoints', run_dir, f) for f in listdir(join('checkpoints', run_dir))
