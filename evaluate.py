@@ -8,6 +8,7 @@ from torchmetrics.functional import accuracy, f1
 from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
 import argparse
+import itertools
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('run_dir', type=str, nargs=1, help='the run you want to evaluate')
@@ -32,22 +33,28 @@ for c in checkpoints:
     print(f'   {c}')
 
 test_data = UTKFaceDataset(split='test', label='age', num_shards=5, num_slices=2, current_shard=0, current_slice=0)
-test_dataloader = DataLoader(test_data, batch_size=512, num_workers=4)
+test_dataloader = DataLoader(test_data, batch_size=9, num_workers=4)
 
 device = torch.device('cuda')
 models = []
 for model_index, checkpoint_path in enumerate(checkpoints):
     models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
 
+age_bins = [2, 9, 20, 27, 45, 65, 120]
+age_bin_names = [*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+']
+race_names = ['white', 'black', 'asian', 'indian', 'other']
+test_groups = list(itertools.product(race_names, age_bin_names))
+
 loss_function = nn.CrossEntropyLoss()
 losses = []
 accs = []
 macro_f1s = []
 lengths = []
+
 for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
     Y = Y.to(device)
-    print(f"Evaluating batch {batch} with length {len(X)}")
+    print(f"Evaluating group {test_groups[batch]} with length {len(X)}")
     logits = torch.zeros((len(X), 7)).to(device)
     for model_index, model in enumerate(models):
         print(f'   Doing inference on shard {model_index+1}/{num_shards}')
@@ -78,7 +85,8 @@ for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
     acc += a.cpu().numpy() * length/len(test_data)
     macro_f1 += m.cpu().numpy() * length/len(test_data)
 
-print(f'Loss: {loss}')
-print(f'Accuracy: {acc}')
-print(f'Macro F1: {macro_f1}')
+print(f'Overall results:')
+print(f'   Loss: {loss}')
+print(f'   Accuracy: {acc}')
+print(f'   Macro F1: {macro_f1}')
 

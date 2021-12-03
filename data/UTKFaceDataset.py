@@ -53,10 +53,11 @@ class UTKFaceDataset(Dataset):
                      f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
                                '1_0_0_20170109194120301.jpg.chip.jpg'}]  # damaged 👀
 
-        indices = utils.get_counts(len(filenames),
+        indices = utils.get_counts(filenames,
                                    num_shards=self.num_shards,
                                    num_slices=self.num_slices,
-                                   return_indices=True)
+                                   return_indices=True,
+                                   strategy='balanced')
 
         random.seed(42)
         if self.split == 'train':
