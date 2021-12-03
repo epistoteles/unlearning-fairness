@@ -66,7 +66,7 @@ class UTKFaceDataset(Dataset):
             random.shuffle(filenames)
         elif self.split == 'test':
             filenames = [f for i, f in enumerate(filenames) if i in indices[-1]]
-            random.shuffle(filenames)
+            # random.shuffle(filenames)
         elif self.split == 'all':
             random.shuffle(filenames)
 
