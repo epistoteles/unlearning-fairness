@@ -78,12 +78,12 @@ for batch, (X, Y) in enumerate(test_dataloader):
     macro_f1s.append(macro_f1)
     lengths.append(len(Y))
     if batch % 7 == 6:
-        print('-'*10)
+        print('-'*30)
         print(f"Average metrics for race '{test_groups[batch][0]}':")
         print(f'   Loss: {sum(losses[-7:])/7}')
-        print(f'   Accuracy: {sum(acc[-7:])/7}')
-        print(f'   Macro F1: {sum(macro_f1[-7:])/7}')
-        print('-'*10)
+        print(f'   Accuracy: {sum(accs[-7:])/7}')
+        print(f'   Macro F1: {sum(macro_f1s[-7:])/7}')
+        print('-'*30)
 
 loss = 0
 acc = 0
@@ -93,9 +93,9 @@ for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
     acc += a.cpu().numpy() * length/len(test_data)
     macro_f1 += m.cpu().numpy() * length/len(test_data)
 
-print('-' * 10)
+print('-' * 30)
 print(f'Overall results:')
 print(f'   Loss: {loss}')
 print(f'   Accuracy: {acc}')
 print(f'   Macro F1: {macro_f1}')
-print('-' * 10)
+print('-' * 30)
