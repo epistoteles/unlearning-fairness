@@ -79,8 +79,8 @@ for batch, (X, Y) in enumerate(test_dataloader):
     accs.append(acc)
     macro_f1s.append(macro_f1)
     lengths.append(len(Y))
-    torch.cat((ys, Y), dim=0)
-    torch.cat((y_preds, torch.argmax(logits, dim=1)), dim=0)
+    ys = torch.cat((ys, Y), dim=0)
+    y_preds = torch.cat((y_preds, torch.argmax(logits, dim=1)), dim=0)
     print(ys)
     print(y_preds)
     if batch % 7 == 6:
