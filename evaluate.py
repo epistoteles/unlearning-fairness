@@ -81,6 +81,8 @@ for batch, (X, Y) in enumerate(test_dataloader):
     lengths.append(len(Y))
     torch.cat((ys, Y))
     torch.cat((y_preds, torch.argmax(logits, dim=1)))
+    print(ys)
+    print(y_preds)
     if batch % 7 == 6:
         print('-'*35)
         print(f"Average metrics for race '{test_groups[batch][0]}':")
