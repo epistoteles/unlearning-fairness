@@ -70,13 +70,13 @@ for batch, (X, Y) in enumerate(test_dataloader):
         top1_acc = accuracy(temp_logits, Y)
         top2_acc = accuracy(temp_logits, Y, top_k=2)
         macro_f1 = f1(temp_logits, Y, average='macro', num_classes=7)
-        print(f'   Shard {model_index+1}/{num_shards} metrics: loss={loss}, top1_acc={top1_acc}, top2_acc={top2_acc}, macro_f1={macro_f1}')
+        print(f'   Shard {model_index+1}/{num_shards} metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
         logits += temp_logits
     loss = loss_function(logits, Y)
     top1_acc = accuracy(logits, Y)
     top2_acc = accuracy(logits, Y, top_k=2)
     macro_f1 = f1(logits, Y, average='macro', num_classes=7)
-    print(f'   Overall subgroup metrics: loss={loss}, top1_acc={top1_acc}, top2_acc={top2_acc}, macro_f1={macro_f1}')
+    print(f'   Overall subgroup metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
     print(f"          True = {Y}")
     print(f"     Predicted = {torch.argmax(logits, dim=1)}")
     losses.append(loss)
@@ -89,10 +89,10 @@ for batch, (X, Y) in enumerate(test_dataloader):
     if batch % 7 == 6:
         print('-'*35)
         print(f"Average metrics for race '{test_groups[batch][0]}':")
-        print(f'   Loss: {sum(losses[-7:])/7}')
-        print(f'   Top-1 Accuracy: {sum(top1_accs[-7:]) / 7}')
-        print(f'   Top-2 Accuracy: {sum(top2_accs[-7:]) / 7}')
-        print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7)}")
+        print(f'   Loss: {sum(losses[-7:])/7:.4f}')
+        print(f'   Top-1 Accuracy: {sum(top1_accs[-7:]) / 7:.4f}')
+        print(f'   Top-2 Accuracy: {sum(top2_accs[-7:]) / 7:.4f}')
+        print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7):.4f}")
         print('-'*35)
 
 loss = 0
@@ -106,8 +106,8 @@ for (l, t1a, t2a, m, length) in zip(losses, top1_accs, top2_accs, macro_f1s, len
 
 print('-' * 35)
 print(f'Overall results:')
-print(f'   Loss: {loss}')
-print(f'   Top-1 Accuracy: {top1_acc}')
-print(f'   Top-2 Accuracy: {top2_acc}')
-print(f"   Macro F1: {f1(y_preds.int(), ys.int(), average='macro', num_classes=7)}")
+print(f'   Loss: {loss:.4f}')
+print(f'   Top-1 Accuracy: {top1_acc:.4f}')
+print(f'   Top-2 Accuracy: {top2_acc:.4f}')
+print(f"   Macro F1: {f1(y_preds.int(), ys.int(), average='macro', num_classes=7):.4f}")
 print('-' * 35)
