@@ -9,7 +9,6 @@ import utils
 from data.Face import Face
 from sampler.Sampler import Sampler
 
-
 class UTKFaceDataset(Dataset):
     """Characterizes the UTKFace dataset for PyTorch"""
 
@@ -53,21 +52,6 @@ class UTKFaceDataset(Dataset):
                      f not in {'1_0_0_20170109193052283.jpg.chip.jpg',
                                '1_0_0_20170109194120301.jpg.chip.jpg'}]  # damaged 👀
 
-        indices = utils.get_counts(filenames,
-                                   num_shards=self.num_shards,
-                                   num_slices=self.num_slices,
-                                   return_indices=True,
-                                   strategy='balanced')
-
-        random.seed(42)
-        if self.split == 'train':
-            filenames = [filenames[i] for i in indices[current_shard * num_slices + current_slice]]
-            random.shuffle(filenames)
-        elif self.split == 'test':
-            filenames = [filenames[i] for i in indices[-1]]
-        elif self.split == 'all':
-            random.shuffle(filenames)
-
         sampler = Sampler(strategy=['gender', 'race'])
         self.faces = []
         for f in filenames:
@@ -80,6 +64,22 @@ class UTKFaceDataset(Dataset):
             face = Face(image=keep, age=age, gender=gender, race=race, filename=f, sampler=sampler)
             self.faces.append(face)
             temp.close()
+
+        indices = utils.get_indices(self.faces,
+                                    num_shards=self.num_shards,
+                                    num_slices=self.num_slices,
+                                    strategy='sorted-balanced',
+                                    put_in='shard',
+                                    random_seed=42)
+
+        random.seed(42)
+        if self.split == 'train':
+            self.faces = [self.faces[i] for i in indices[current_shard * num_slices + current_slice]]
+            random.shuffle(self.faces)
+        elif self.split == 'test':
+            self.faces = [self.faces[i] for i in indices[-1]]
+        elif self.split == 'all':
+            random.shuffle(self.faces)
 
     def __len__(self):
         """Denotes the total number of samples"""
