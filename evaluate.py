@@ -86,7 +86,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
         print(f"Average metrics for race '{test_groups[batch][0]}':")
         print(f'   Loss: {sum(losses[-7:])/7}')
         print(f'   Accuracy: {sum(accs[-7:])/7}')
-        print(f"   Macro F1: {f1(y_preds[-9*7:], ys[-9*7:], average='macro', num_classes=7)}")
+        print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7)}")
         print('-'*35)
 
 loss = 0
