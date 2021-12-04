@@ -97,6 +97,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
 
 loss = 0
 top1_acc = 0
+top2_acc = 0
 macro_f1 = 0
 for (l, t1a, t2a, m, length) in zip(losses, top1_accs, top2_accs, macro_f1s, lengths):
     loss += l.cpu().numpy() * length/len(test_data)
