@@ -98,14 +98,16 @@ for batch, (X, Y) in enumerate(test_dataloader):
 loss = 0
 top1_acc = 0
 macro_f1 = 0
-for (l, a, m, length) in zip(losses, top1_accs, macro_f1s, lengths):
+for (l, t1a, t2a, m, length) in zip(losses, top1_accs, top2_accs, macro_f1s, lengths):
     loss += l.cpu().numpy() * length/len(test_data)
-    top1_acc += a.cpu().numpy() * length / len(test_data)
+    top1_acc += t1a.cpu().numpy() * length / len(test_data)
+    top2_acc += t2a.cpu().numpy() * length / len(test_data)
     macro_f1 += m.cpu().numpy() * length/len(test_data)
 
 print('-' * 35)
 print(f'Overall results:')
 print(f'   Loss: {loss}')
-print(f'   Accuracy: {top1_acc}')
+print(f'   Top-1 Accuracy: {top1_acc}')
+print(f'   Top-2 Accuracy: {top2_acc}')
 print(f"   Macro F1: {f1(y_preds.int(), ys.int(), average='macro', num_classes=7)}")
 print('-' * 35)
