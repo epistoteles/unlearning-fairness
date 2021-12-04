@@ -51,8 +51,8 @@ losses = []
 accs = []
 macro_f1s = []
 lengths = []
-ys = torch.Tensor()
-y_preds = torch.Tensor()
+ys = torch.Tensor().cuda()
+y_preds = torch.Tensor().cuda()
 
 for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
