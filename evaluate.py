@@ -48,7 +48,8 @@ test_groups = list(itertools.product(race_names, age_bin_names))
 
 loss_function = nn.CrossEntropyLoss()
 losses = []
-accs = []
+top1_accs = []
+top2_accs = []
 macro_f1s = []
 lengths = []
 ys = torch.Tensor().cuda()
@@ -66,18 +67,21 @@ for batch, (X, Y) in enumerate(test_dataloader):
             temp_logits = model(X)
             # logits += torch.rand((len(X), 7))
         loss = loss_function(temp_logits, Y)
-        acc = accuracy(temp_logits, Y)
+        top1_acc = accuracy(temp_logits, Y)
+        top2_acc = accuracy(temp_logits, Y, top_k=2)
         macro_f1 = f1(temp_logits, Y, average='macro', num_classes=7)
-        print(f'   Shard {model_index+1}/{num_shards} metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+        print(f'   Shard {model_index+1}/{num_shards} metrics: loss={loss}, top1_acc={top1_acc}, top2_acc={top2_acc}, macro_f1={macro_f1}')
         logits += temp_logits
     loss = loss_function(logits, Y)
-    acc = accuracy(logits, Y)
+    top1_acc = accuracy(logits, Y)
+    top2_acc = accuracy(logits, Y, top_k=2)
     macro_f1 = f1(logits, Y, average='macro', num_classes=7)
-    print(f'   Overall subgroup metrics: loss={loss}, acc={acc}, macro_f1={macro_f1}')
+    print(f'   Overall subgroup metrics: loss={loss}, top1_acc={top1_acc}, top2_acc={top2_acc}, macro_f1={macro_f1}')
     print(f"          True = {Y}")
     print(f"     Predicted = {torch.argmax(logits, dim=1)}")
     losses.append(loss)
-    accs.append(acc)
+    top1_accs.append(top1_acc)
+    top2_accs.append(top2_acc)
     macro_f1s.append(macro_f1)
     lengths.append(len(Y))
     ys = torch.cat((ys, Y), dim=0)
@@ -86,21 +90,22 @@ for batch, (X, Y) in enumerate(test_dataloader):
         print('-'*35)
         print(f"Average metrics for race '{test_groups[batch][0]}':")
         print(f'   Loss: {sum(losses[-7:])/7}')
-        print(f'   Accuracy: {sum(accs[-7:])/7}')
+        print(f'   Top-1 Accuracy: {sum(top1_accs[-7:]) / 7}')
+        print(f'   Top-2 Accuracy: {sum(top2_accs[-7:]) / 7}')
         print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7)}")
         print('-'*35)
 
 loss = 0
-acc = 0
+top1_acc = 0
 macro_f1 = 0
-for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
+for (l, a, m, length) in zip(losses, top1_accs, macro_f1s, lengths):
     loss += l.cpu().numpy() * length/len(test_data)
-    acc += a.cpu().numpy() * length/len(test_data)
+    top1_acc += a.cpu().numpy() * length / len(test_data)
     macro_f1 += m.cpu().numpy() * length/len(test_data)
 
 print('-' * 35)
 print(f'Overall results:')
 print(f'   Loss: {loss}')
-print(f'   Accuracy: {acc}')
+print(f'   Accuracy: {top1_acc}')
 print(f"   Macro F1: {f1(y_preds.int(), ys.int(), average='macro', num_classes=7)}")
 print('-' * 35)
