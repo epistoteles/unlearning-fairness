@@ -51,6 +51,8 @@ losses = []
 accs = []
 macro_f1s = []
 lengths = []
+ys = torch.Tensor()
+y_preds = torch.Tensor()
 
 for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
@@ -77,13 +79,15 @@ for batch, (X, Y) in enumerate(test_dataloader):
     accs.append(acc)
     macro_f1s.append(macro_f1)
     lengths.append(len(Y))
+    torch.cat((ys, Y))
+    torch.cat((y_preds, torch.argmax(logits, dim=1)))
     if batch % 7 == 6:
-        print('-'*30)
+        print('-'*35)
         print(f"Average metrics for race '{test_groups[batch][0]}':")
         print(f'   Loss: {sum(losses[-7:])/7}')
         print(f'   Accuracy: {sum(accs[-7:])/7}')
-        print(f'   Macro F1: {sum(macro_f1s[-7:])/7}')
-        print('-'*30)
+        print(f"   Macro F1: {f1(y_preds[-9*7:], ys[-9*7:], average='macro', num_classes=7)}")
+        print('-'*35)
 
 loss = 0
 acc = 0
@@ -93,9 +97,9 @@ for (l, a, m, length) in zip(losses, accs, macro_f1s, lengths):
     acc += a.cpu().numpy() * length/len(test_data)
     macro_f1 += m.cpu().numpy() * length/len(test_data)
 
-print('-' * 30)
+print('-' * 35)
 print(f'Overall results:')
 print(f'   Loss: {loss}')
 print(f'   Accuracy: {acc}')
-print(f'   Macro F1: {macro_f1}')
-print('-' * 30)
+print(f"   Macro F1: {f1(y_preds, ys, average='macro', num_classes=7)}")
+print('-' * 35)
