@@ -88,11 +88,9 @@ def get_indices(faces, num_shards, num_slices, test=0.1, strategy='random-random
                               put_in=put_in)
 
 
-
 def random_run_name():
-    animals = ['bear', 'tiger', 'panther', 'scorpion', 'owl', 'salmon']
     adjectives = ['lazy', 'happy', 'green', 'blue', 'hungry', 'warm', 'royal', 'bored', 'marble', 'striped',
                   'brown', 'toxic', 'siberian', 'musical']
-    return f"{random.choice(adjectives)}-{random.choice(animals)}"
-
-
+    animals = ['bear', 'tiger', 'panther', 'scorpion', 'owl', 'salmon']
+    verbs = ['eats', 'sleeps', 'yawns', 'composes', 'codes', 'gardens', 'growls', 'purrs', 'procrastinates']
+    return f"{random.choice(adjectives)}-{random.choice(animals)}-{random.choice(verbs)}"
