@@ -3,6 +3,8 @@ import torch
 
 
 def random_split(dataset, lengths, random_seed):
+    if sum(lengths) != len(dataset):
+        raise ValueError(f"Lengths don't match: dataset has length {len(dataset)}, but {sum(lengths)} was requested")
     return list(map(list, torch.utils.data.random_split(dataset,
                                                         lengths,
                                                         generator=torch.Generator().manual_seed(random_seed))))
