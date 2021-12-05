@@ -69,7 +69,7 @@ class UTKFaceDataset(Dataset):
                                     num_shards=self.num_shards,
                                     num_slices=self.num_slices,
                                     strategy='random-balanced',
-                                    put_in='slice',
+                                    put_in='shard',
                                     random_seed=42)
 
         random.seed(42)
