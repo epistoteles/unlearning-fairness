@@ -71,7 +71,7 @@ def get_indices(faces, num_shards, num_slices, test=0.1, strategy='random-random
     if strategy == random:
         test_len = int(length * test)
     else:
-        test_len = 5 * 7 * num_test_samples  # races * age_bins * test_samples
+        test_len = 6 * 7 * num_test_samples  # races * age_bins * test_samples
     train_val_len = length - test_len
     n = num_shards * num_slices
     d, m = divmod(train_val_len, n)
