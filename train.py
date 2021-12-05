@@ -4,13 +4,26 @@ from pytorch_lightning import Trainer
 from model.AgeModelResnet18 import AgeModelResnet18
 import itertools
 import wandb
+import argparse
 from utils import random_run_name
+
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('num_shards', type=int, nargs=1, help='number of shards')
+parser.add_argument('num_slices', type=int, nargs=1, help='number of slices')
+parser.add_argument('strategy', type=str, nargs=1, help='strategy: random-balanced or sorted-balanced')
+parser.add_argument('put_in', type=str, nargs=1, help='strategy to distribute samples: slice or shard')
+args = parser.parse_args()
+
+num_shards = args.num_shards
+num_slices = args.num_slices
+strategy = args.strategy
+put_in = args.put_in
 
 run_name = random_run_name()
 print(f"Starting experiment run {run_name} ...")
-
-num_shards = 1
-num_slices = 1
+print(f"Shards: {num_shards}, Slices: {num_slices}")
+print(f"Strategy: {strategy} with put_in {put_in}")
 
 for current_shard, current_slice in itertools.product(range(num_shards), range(num_slices)):
     if current_slice == 0:  # first slice
