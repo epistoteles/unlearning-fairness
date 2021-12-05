@@ -1,4 +1,4 @@
-import sys
+import pickle
 from os import listdir
 from os.path import join
 import torch
@@ -9,6 +9,7 @@ from data.UTKFaceDataset import UTKFaceDataset
 from model.AgeModelResnet18 import AgeModelResnet18
 import argparse
 import itertools
+import pickle
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('run_dir', type=str, nargs=1, help='the run you want to evaluate')
@@ -19,7 +20,7 @@ print(f'Evaluating run {run_dir}')
 checkpoints = [join('checkpoints', run_dir, f) for f in listdir(join('checkpoints', run_dir))
                if f.endswith('.ckpt')]
 
-'checkpoints/happy-bear/happy-bear-shard=2-slice=1.ckpt'
+# example: 'checkpoints/happy-bear/happy-bear-sleeps-shard=2-slice=1.ckpt'
 shards = [int(f.split('shard=')[-1].split('-')[0]) for f in checkpoints]
 slices = [int(f.split('slice=')[-1].split('.')[0]) for f in checkpoints]
 
@@ -43,7 +44,7 @@ for model_index, checkpoint_path in enumerate(checkpoints):
 
 age_bins = [2, 9, 20, 27, 45, 65, 120]
 age_bin_names = [*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+']
-race_names = ['white', 'black', 'asian', 'indian', 'other']
+race_names = ['white', 'black', 'asian', 'indian', 'other', 'random']
 test_groups = list(itertools.product(race_names, age_bin_names))
 
 loss_function = nn.CrossEntropyLoss()
@@ -54,6 +55,8 @@ macro_f1s = []
 lengths = []
 ys = torch.Tensor().cuda()
 y_preds = torch.Tensor().cuda()
+
+result_dict = {}
 
 for batch, (X, Y) in enumerate(test_dataloader):
     X = X.to(device)
@@ -94,6 +97,7 @@ for batch, (X, Y) in enumerate(test_dataloader):
         print(f'   Top-2 Accuracy: {sum(top2_accs[-7:]) / 7:.4f}')
         print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7):.4f}")
         print('-'*35)
+        result_dict[test_groups[batch][0]] = (sum(top1_accs[-7:]) / 7, sum(top2_accs[-7:]) / 7)  # {race: (top1_acc, top2_acc)}
 
 loss = 0
 top1_acc = 0
@@ -112,3 +116,7 @@ print(f'   Top-1 Accuracy: {top1_acc:.4f}')
 print(f'   Top-2 Accuracy: {top2_acc:.4f}')
 print(f"   Macro F1: {f1(y_preds.int(), ys.int(), average='macro', num_classes=7):.4f}")
 print('-' * 35)
+
+result_dict['total'] = (top1_acc, top2_acc)
+
+pickle.dump(result_dict, open(f"summaries/{run_dir}.pickle", "wb"))
