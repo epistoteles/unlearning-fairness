@@ -15,10 +15,10 @@ parser.add_argument('strategy', type=str, nargs=1, help='strategy: random-balanc
 parser.add_argument('put_in', type=str, nargs=1, help='strategy to distribute samples: slice or shard')
 args = parser.parse_args()
 
-num_shards = args.num_shards
-num_slices = args.num_slices
-strategy = args.strategy
-put_in = args.put_in
+num_shards = args.num_shards[0]
+num_slices = args.num_slices[0]
+strategy = args.strategy[0]
+put_in = args.put_in[0]
 
 run_name = random_run_name()
 print(f"Starting experiment run {run_name} ...")
