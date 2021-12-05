@@ -20,7 +20,7 @@ def sequential_split(dataset, lengths):
     return result
 
 def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in='shard', num_slices=1, num_shards=1):
-    if lengths[-1] != 5 * 7 * num_test_samples:
+    if lengths[-1] != 6 * 7 * num_test_samples:
         raise ValueError(f'False length of test set: {lengths[-1]}')
     random.seed(random_seed)
     indices = range(len(faces))
