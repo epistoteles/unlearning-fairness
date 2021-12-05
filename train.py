@@ -9,8 +9,8 @@ from utils import random_run_name
 run_name = random_run_name()
 print(f"Starting experiment run {run_name} ...")
 
-num_shards = 2
-num_slices = 5
+num_shards = 5
+num_slices = 2
 
 for current_shard, current_slice in itertools.product(range(num_shards), range(num_slices)):
     if current_slice == 0:  # first slice
