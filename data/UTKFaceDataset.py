@@ -68,7 +68,7 @@ class UTKFaceDataset(Dataset):
         indices = utils.get_indices(self.faces,
                                     num_shards=self.num_shards,
                                     num_slices=self.num_slices,
-                                    strategy='sorted-balanced',
+                                    strategy='random-balanced',
                                     put_in='slice',
                                     random_seed=42)
 
