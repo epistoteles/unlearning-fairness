@@ -103,11 +103,11 @@ loss = 0
 top1_acc = 0
 top2_acc = 0
 macro_f1 = 0
-for (l, t1a, t2a, m, length) in zip(losses, top1_accs, top2_accs, macro_f1s, lengths):
-    loss += l.cpu().numpy() * length/len(test_data)
-    top1_acc += t1a.cpu().numpy() * length / len(test_data)
-    top2_acc += t2a.cpu().numpy() * length / len(test_data)
-    macro_f1 += m.cpu().numpy() * length/len(test_data)
+for (l, t1a, t2a, m, length) in zip(losses[:-7*9], top1_accs[:-7*9], top2_accs[:-7*9], macro_f1s[:-7*9], lengths[:-7*9]):
+    loss += l.cpu().numpy() * length/len(test_data-7*9)
+    top1_acc += t1a.cpu().numpy() * length / len(test_data-7*9)
+    top2_acc += t2a.cpu().numpy() * length / len(test_data-7*9)
+    macro_f1 += m.cpu().numpy() * length/len(test_data-7*9)
 
 print('-' * 35)
 print(f'Overall results:')
