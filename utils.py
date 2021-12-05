@@ -19,6 +19,7 @@ def sequential_split(dataset, lengths):
         dataset = dataset[length:]
     return result
 
+
 def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in='shard', num_slices=1, num_shards=1):
     if lengths[-1] != 6 * 7 * num_test_samples:
         raise ValueError(f'False length of test set: {lengths[-1]}')
@@ -57,7 +58,8 @@ def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in=
 
 
 def split(a, n):
-    k, m = divmod(len(a), n)  # len(a)=43, n=4, k=10, m=3
+    """Splits list a into n approximately equal sized lists"""
+    k, m = divmod(len(a), n)
     return [k + int(i < m) for i in range(n)]
 
 
@@ -93,6 +95,7 @@ def get_indices(faces, num_shards, num_slices, test=0.1, strategy='random-random
 
 
 def random_run_name():
+    """Creates a random name for each run based on nicknames and attributes for my family and friends"""
     adjectives = ['lazy', 'happy', 'green', 'blue', 'hungry', 'warm', 'royal', 'bored', 'marble', 'striped',
                   'brown', 'toxic', 'siberian', 'musical']
     animals = ['bear', 'tiger', 'panther', 'scorpion', 'owl', 'salmon']

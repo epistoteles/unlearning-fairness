@@ -20,9 +20,11 @@ num_slices = args.num_slices[0]
 strategy = args.strategy[0]
 put_in = args.put_in[0]
 
-for i in range(10):
-    run_name = f'{random_run_name()}-{i}/10'
-    print(f"Starting experiment run {run_name} ...")
+# run_name = random_run_name()
+run_name = f'{strategy}-{put_in}'
+
+for i in range(5):
+    print(f"Starting experiment run {run_name}-{i}/10 ...")
     print(f"Shards: {num_shards}, Slices: {num_slices}")
     print(f"Strategy: {strategy} with put_in {put_in}")
 
@@ -42,7 +44,7 @@ for i in range(10):
 
         logger = WandbLogger(project="age-classifier",
                              entity='epistoteles',
-                             id=f'{run_name}-shard-{current_shard}-slice-{current_slice}',
+                             id=f'{run_name}-{i}/10-shard-{current_shard}-slice-{current_slice}',
                              group=f'{run_name}')
         lr_monitor_cb = LearningRateMonitor(logging_interval='epoch')
         checkpoint_cb = ModelCheckpoint(save_top_k=1,
