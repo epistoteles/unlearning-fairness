@@ -110,13 +110,13 @@ for (l, t1a, t2a, m, length) in zip(losses[:-7*9], top1_accs[:-7*9], top2_accs[:
     macro_f1 += m.cpu().numpy() * length/len(test_data-7*9)
 
 print('-' * 35)
-print(f'Overall results:')
+print(f'Results on all 5 races:')
 print(f'   Loss: {loss:.4f}')
 print(f'   Top-1 Accuracy: {top1_acc:.4f}')
 print(f'   Top-2 Accuracy: {top2_acc:.4f}')
 print(f"   Macro F1: {f1(y_preds.int(), ys.int(), average='macro', num_classes=7):.4f}")
 print('-' * 35)
 
-result_dict['total'] = (top1_acc, top2_acc)
+result_dict['all_races'] = (top1_acc, top2_acc)
 
 pickle.dump(result_dict, open(f"summaries/{run_dir}.pickle", "wb"))
