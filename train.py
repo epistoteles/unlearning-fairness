@@ -26,8 +26,9 @@ run_name = f'{strategy}-{put_in}'
 cv = 5
 for i in range(cv):
     print(f"Starting experiment run {run_name}-{i+1}of{cv} ...")
+    print(f'wandb group: {run_name}')
     print(f"Shards: {num_shards}, Slices: {num_slices}")
-    print(f"Strategy: {strategy} with put_in {put_in}")
+    print(f"Strategy {strategy} with put_in {put_in}")
 
     for current_shard, current_slice in itertools.product(range(num_shards), range(num_slices)):
         if current_slice == 0:  # first slice
@@ -45,7 +46,7 @@ for i in range(cv):
 
         logger = WandbLogger(project="age-classifier",
                              entity='epistoteles',
-                             id=f'{run_name}-{i}/10-shard-{current_shard}-slice-{current_slice}',
+                             id=f'{run_name}-{i+1}of{cv}-shard-{current_shard}-slice-{current_slice}',
                              group=f'{run_name}')
         lr_monitor_cb = LearningRateMonitor(logging_interval='epoch')
         checkpoint_cb = ModelCheckpoint(save_top_k=1,
@@ -53,7 +54,7 @@ for i in range(cv):
                                         # monitor='val/macro_f1_epoch',  # saves checkpoint for best epoch
                                         # mode='max',  # necessary when tracking macro F1
                                         dirpath=f"checkpoints/{run_name}/",
-                                        filename=f"{run_name}-shard={current_shard}-slice={current_slice}",
+                                        filename=f"{run_name}-{i+1}of{cv}-shard={current_shard}-slice={current_slice}",
                                         save_weights_only=True)
         trainer = Trainer(max_epochs=15, gpus=1, logger=logger, callbacks=[lr_monitor_cb, checkpoint_cb])
 
