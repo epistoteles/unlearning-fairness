@@ -58,7 +58,7 @@ def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in=
 
 
 def split(a, n):
-    """Splits list a into n approximately equal sized lists"""
+    """Splits list a into n approximately equal sized lists and returns lenghts of new sublists"""
     k, m = divmod(len(a), n)
     return [k + int(i < m) for i in range(n)]
 
