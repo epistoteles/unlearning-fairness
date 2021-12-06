@@ -23,8 +23,9 @@ put_in = args.put_in[0]
 # run_name = random_run_name()
 run_name = f'{strategy}-{put_in}'
 
-for i in range(5):
-    print(f"Starting experiment run {run_name}-{i}/10 ...")
+cv = 5
+for i in range(cv):
+    print(f"Starting experiment run {run_name}-{i+1}of{cv} ...")
     print(f"Shards: {num_shards}, Slices: {num_slices}")
     print(f"Strategy: {strategy} with put_in {put_in}")
 
