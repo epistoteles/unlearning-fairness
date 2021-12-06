@@ -1,4 +1,3 @@
-import pickle
 from os import listdir
 from os.path import join
 import torch
@@ -10,6 +9,8 @@ from model.AgeModelResnet18 import AgeModelResnet18
 import argparse
 import itertools
 import pickle
+import pandas as pd
+
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('run_dir', type=str, nargs=1, help='the run you want to evaluate')
@@ -30,13 +31,13 @@ print(f'Found {num_shards} shards and {num_slices} slices.')
 
 checkpoints = [f for f, s in zip(checkpoints, slices) if s == num_slices - 1]
 checkpoints = sorted(checkpoints, key=lambda x: (int(x.split('-shard=')[0].split('of')[0][-1]),  # Xof5
-                                                 int(x.split('shard=')[-1].split('-')[0])))   # shard X
-checkpoints_grouped = [checkpoints[x*num_shards:(x+1)*num_shards] for x in range(len(checkpoints)//num_shards)]
+                                                 int(x.split('shard=')[-1].split('-')[0])))  # shard X
+checkpoints_grouped = [checkpoints[x * num_shards:(x + 1) * num_shards] for x in range(len(checkpoints) // num_shards)]
 
 result_dicts = []
 
 for cv, cpt in enumerate(checkpoints_grouped):
-    print(f'Evaluating on following checkpoints on cv {cv+1}of{len(checkpoints) // num_shards}:')
+    print(f'Evaluating on following checkpoints on cv {cv + 1}of{len(checkpoints) // num_shards}:')
     for c in cpt:
         print(f'   {c}')
 
@@ -50,7 +51,7 @@ for cv, cpt in enumerate(checkpoints_grouped):
         models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
 
     age_bins = [2, 9, 20, 27, 45, 65, 120]
-    age_bin_names = [*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+']
+    age_bin_names = [*[f'{[-1, *age_bins][i] + 1}-{age_bins[i]}' for i in range(len(age_bins) - 1)], f'{age_bins[-2]}+']
     race_names = ['white', 'black', 'asian', 'indian', 'other', 'random']
     test_groups = list(itertools.product(race_names, age_bin_names))
 
@@ -80,13 +81,15 @@ for cv, cpt in enumerate(checkpoints_grouped):
             top1_acc = accuracy(temp_logits, Y)
             top2_acc = accuracy(temp_logits, Y, top_k=2)
             macro_f1 = f1(temp_logits, Y, average='macro', num_classes=7)
-            print(f'   Shard {model_index+1}/{num_shards} metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
+            print(
+                f'   Shard {model_index + 1}/{num_shards} metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
             logits += temp_logits
         loss = loss_function(logits, Y)
         top1_acc = accuracy(logits, Y)
         top2_acc = accuracy(logits, Y, top_k=2)
         macro_f1 = f1(logits, Y, average='macro', num_classes=7)
-        print(f'   Overall subgroup metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
+        print(
+            f'   Overall subgroup metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
         print(f"          True = {Y}")
         print(f"     Predicted = {torch.argmax(logits, dim=1)}")
         losses.append(loss)
@@ -97,24 +100,25 @@ for cv, cpt in enumerate(checkpoints_grouped):
         ys = torch.cat((ys, Y), dim=0)
         y_preds = torch.cat((y_preds, torch.argmax(logits, dim=1)), dim=0)
         if batch % 7 == 6:
-            print('-'*35)
+            print('-' * 35)
             print(f"Average metrics for race '{test_groups[batch][0]}':")
-            print(f'   Loss: {sum(losses[-7:])/7:.4f}')
+            print(f'   Loss: {sum(losses[-7:]) / 7:.4f}')
             print(f'   Top-1 Accuracy: {sum(top1_accs[-7:]) / 7:.4f}')
             print(f'   Top-2 Accuracy: {sum(top2_accs[-7:]) / 7:.4f}')
-            print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7):.4f}")
-            print('-'*35)
-            result_dict[test_groups[batch][0]] = ((sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
+            print(f"   Macro F1: {f1(y_preds[-9 * 7:].int(), ys[-9 * 7:].int(), average='macro', num_classes=7):.4f}")
+            print('-' * 35)
+            result_dict[test_groups[batch][0]] = (
+            (sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
 
     loss = 0
     top1_acc = 0
     top2_acc = 0
     macro_f1 = 0
     for (l, t1a, t2a, m, length) in zip(losses[:-7], top1_accs[:-7], top2_accs[:-7], macro_f1s[:-7], lengths[:-7]):
-        loss += l.cpu().numpy() * length / (len(test_data)-7*9)
-        top1_acc += t1a.cpu().numpy() * length / (len(test_data)-7*9)
-        top2_acc += t2a.cpu().numpy() * length / (len(test_data)-7*9)
-        macro_f1 += m.cpu().numpy() * length / (len(test_data)-7*9)
+        loss += l.cpu().numpy() * length / (len(test_data) - 7 * 9)
+        top1_acc += t1a.cpu().numpy() * length / (len(test_data) - 7 * 9)
+        top2_acc += t2a.cpu().numpy() * length / (len(test_data) - 7 * 9)
+        macro_f1 += m.cpu().numpy() * length / (len(test_data) - 7 * 9)
 
     print('-' * 35)
     print(f'Results on all 5 races:')
@@ -127,9 +131,10 @@ for cv, cpt in enumerate(checkpoints_grouped):
     result_dict['all_races'] = (top1_acc, top2_acc)
 
     result_dicts.append(result_dict)
-    pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv+1}of{len(checkpoints) // num_shards}.pickle", "wb"))
+    pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv + 1}of{len(checkpoints) // num_shards}.pickle", "wb"))
 
-import pandas as pd
+
+print(result_dicts)
 df = pd.DataFrame(result_dicts)
 answer = dict(df.mean())
 print(answer)
