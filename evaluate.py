@@ -33,6 +33,8 @@ checkpoints = sorted(checkpoints, key=lambda x: (int(x.split('-shard=')[0].split
                                                  int(x.split('shard=')[-1].split('-')[0])))   # shard X
 checkpoints_grouped = [checkpoints[x*num_shards:(x+1)*num_shards] for x in range(len(checkpoints)//num_shards)]
 
+result_dicts = []
+
 for cv, cpt in enumerate(checkpoints_grouped):
     print(f'Evaluating on following checkpoints on cv {cv+1}of{len(checkpoints) // num_shards}:')
     for c in cpt:
@@ -108,8 +110,6 @@ for cv, cpt in enumerate(checkpoints_grouped):
     top1_acc = 0
     top2_acc = 0
     macro_f1 = 0
-    print(top1_accs)
-    print(top2_accs)
     for (l, t1a, t2a, m, length) in zip(losses[:-7], top1_accs[:-7], top2_accs[:-7], macro_f1s[:-7], lengths[:-7]):
         loss += l.cpu().numpy() * length / (len(test_data)-7*9)
         top1_acc += t1a.cpu().numpy() * length / (len(test_data)-7*9)
@@ -126,4 +126,11 @@ for cv, cpt in enumerate(checkpoints_grouped):
 
     result_dict['all_races'] = (top1_acc, top2_acc)
 
+    result_dicts.append(result_dict)
     pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv+1}of{len(checkpoints) // num_shards}.pickle", "wb"))
+
+import pandas as pd
+df = pd.DataFrame(result_dicts)
+answer = dict(df.mean())
+print(answer)
+pickle.dump(answer, open(f"summaries/{run_dir}-mean.pickle", "wb"))
