@@ -134,7 +134,8 @@ for cv, cpt in enumerate(checkpoints_grouped):
     result_dicts.append(result_dict)
     pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv + 1}of{len(checkpoints) // num_shards}.pickle", "wb"))
 
-pdb.set_trace()
-df = pd.DataFrame(result_dicts)
-answer = dict(df.mean())
-pickle.dump(answer, open(f"summaries/{run_dir}-mean.pickle", "wb"))
+top1_dicts = [{k: v[0] for k, v in x.items()} for x in result_dicts]
+top2_dicts = [{k: v[1] for k, v in x.items()} for x in result_dicts]
+df1 = pd.DataFrame(top1_dicts)
+df2 = pd.DataFrame(top2_dicts)
+pickle.dump((df1.mean(), df2.mean()), open(f"summaries/{run_dir}-mean.pickle", "wb"))
