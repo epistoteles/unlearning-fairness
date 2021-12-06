@@ -38,7 +38,7 @@ for i in range(cv):
                                      num_slices=num_slices)
         else:  # later slices with pretrained checkpoints
             model = AgeModelResnet18.load_from_checkpoint(
-                f'checkpoints/{run_name}/{run_name}-shard={current_shard}-slice={current_slice - 1}.ckpt',
+                f'checkpoints/{run_name}/{run_name}-{i+1}of{cv}-shard={current_shard}-slice={current_slice - 1}.ckpt',
                 current_shard=current_shard,
                 num_shards=num_shards,
                 current_slice=current_slice,
