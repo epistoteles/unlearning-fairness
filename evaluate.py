@@ -102,7 +102,7 @@ for cv, cpt in enumerate(checkpoints_grouped):
             print(f'   Top-2 Accuracy: {sum(top2_accs[-7:]) / 7:.4f}')
             print(f"   Macro F1: {f1(y_preds[-9*7:].int(), ys[-9*7:].int(), average='macro', num_classes=7):.4f}")
             print('-'*35)
-            result_dict[test_groups[batch][0]] = (sum(top1_accs[-7:]) / 7, sum(top2_accs[-7:]) / 7)  # {race: (top1_acc, top2_acc)}
+            result_dict[test_groups[batch][0]] = ((sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
 
     loss = 0
     top1_acc = 0
