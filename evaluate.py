@@ -29,6 +29,8 @@ num_slices = max(slices) + 1
 print(f'Found {num_shards} shards and {num_slices} slices.')
 
 checkpoints = [f for f, s in zip(checkpoints, slices) if s == num_slices - 1]
+checkpoints = sorted(checkpoints, key=lambda x: (int(x.split('-shard=')[0].split('of')[-1]),  # Xof5
+                                                 int(x.split('shard=')[-1].split('-')[0])))   # shard X
 print(f'Evaluating on following checkpoints:')
 for c in checkpoints:
     print(f'   {c}')
