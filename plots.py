@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
 from collections import Counter
+import seaborn as sns
 
 
 def show(imgs):
@@ -30,9 +31,10 @@ plt.rcParams["savefig.bbox"] = 'tight'
 # plt.savefig('plots/faces.png')
 # plt.show()
 
-ages = dataset.ages
-genders = dataset.genders
-races = dataset.races
+# ages = [x.age for x in dataset.faces]
+# age_labels = [x.age_bin for x in dataset.faces]
+# genders = [x.gender for x in dataset.faces]
+# races = [x.race for x in dataset.faces]
 #
 # white_ages = [age for age, race in zip(ages, races) if race == 0]
 # black_ages = [age for age, race in zip(ages, races) if race == 1]
@@ -50,22 +52,48 @@ races = dataset.races
 # plt.legend(loc='upper right')
 # plt.savefig('plots/ages-vs-races.png')
 # plt.show()
+#
+# sns.set(style="darkgrid")
+# age_bins = [2, 9, 20, 27, 45, 65, 120]
+# for race in range(5):
+#     age_labels = [x.age_bin for x in dataset.faces if x.race == race]
+#     c = Counter(age_labels)
+#     y = [c[key]/23000. for key in sorted(c.keys())]
+#     fig, ax = plt.subplots()
+#     # plt.bar([*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+'], y)
+#     sns.barplot(x=[*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+'],
+#                 y=y)
+#     # for i, v in enumerate(y):
+#     #     ax.text(i-0.3, v+0.01, f'{v:.3f}')
+# plt.legend(loc='upper right')
+# plt.savefig('plots/age-bins.png')
+# plt.show()
 
 
-age_labels = []
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+f = plt.figure(figsize=(7, 5))
+ax = f.add_subplot(1, 1, 1)
+
 age_bins = [2, 9, 20, 27, 45, 65, 120]
-for age in ages:
-    for idx, age_bin in enumerate(age_bins):
-        if age <= age_bin:
-            age_labels.append(idx)
-            break
+bin_names = [*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+']
+races = ['white', 'black', 'asian', 'indian', 'other']
+df = pd.DataFrame({
+    "class": [bin_names[x.age_bin] for x in dataset.faces],
+    "race": [races[x.race] for x in dataset.faces]
+})
+df['class'] = pd.Categorical(df['class'], bin_names)
+df['race'] = pd.Categorical(df['race'], races[::-1])
 
-c = Counter(age_labels)
-y = [c[key]/23000. for key in sorted(c.keys())]
-fig, ax = plt.subplots()
-plt.bar([*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+'], y)
-for i, v in enumerate(y):
-    ax.text(i-0.3, v+0.01, f'{v:.3f}')
-plt.legend(loc='upper right')
+
+sns.set(style="darkgrid")
+sns.histplot(data=df, ax=ax, stat="percent", multiple="stack",
+             x="class", kde=False, palette="hls", hue="race",
+             element="bars", legend=True, binwidth=0.9, discrete=True)
+ax.set_title("Seaborn Stacked Histogram")
+ax.set_xlabel("Class")
+ax.set_ylabel("Percent")
 plt.savefig('plots/age-bins.png')
-plt.show()
