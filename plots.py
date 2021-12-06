@@ -70,30 +70,4 @@ plt.rcParams["savefig.bbox"] = 'tight'
 # plt.show()
 
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-import numpy as np
 
-f = plt.figure(figsize=(7, 5))
-ax = f.add_subplot(1, 1, 1)
-
-age_bins = [2, 9, 20, 27, 45, 65, 120]
-bin_names = [*[f'{[-1, *age_bins][i]+1}-{age_bins[i]}' for i in range(len(age_bins)-1)], f'{age_bins[-2]}+']
-races = ['white', 'black', 'asian', 'indian', 'other']
-df = pd.DataFrame({
-    "class": [bin_names[x.age_bin] for x in dataset.faces],
-    "race": [races[x.race] for x in dataset.faces]
-})
-df['class'] = pd.Categorical(df['class'], bin_names)
-df['race'] = pd.Categorical(df['race'], races[::-1])
-
-
-sns.set(style="darkgrid")
-sns.histplot(data=df, ax=ax, stat="percent", multiple="stack",
-             x="class", kde=False, palette="hls", hue="race",
-             element="bars", legend=True, binwidth=0.9, discrete=True)
-ax.set_title("Seaborn Stacked Histogram")
-ax.set_xlabel("Class")
-ax.set_ylabel("Percent")
-plt.savefig('plots/age-bins.png')
