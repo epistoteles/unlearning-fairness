@@ -10,7 +10,6 @@ from model.AgeModelResnet18 import AgeModelResnet18
 import argparse
 import itertools
 import pickle
-from utils import split
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('run_dir', type=str, nargs=1, help='the run you want to evaluate')
@@ -33,10 +32,8 @@ checkpoints = [f for f, s in zip(checkpoints, slices) if s == num_slices - 1]
 checkpoints = sorted(checkpoints, key=lambda x: (int(x.split('-shard=')[0].split('of')[0][-1]),  # Xof5
                                                  int(x.split('shard=')[-1].split('-')[0])))   # shard X
 checkpoints_grouped = [checkpoints[x*num_shards:(x+1)*num_shards] for x in range(len(checkpoints)//num_shards)]
-print(checkpoints_grouped)
 
 for cv, cpt in enumerate(checkpoints_grouped):
-    print(cv)
     print(f'Evaluating on following checkpoints on cv {cv+1}of{len(checkpoints) // num_shards}:')
     for c in cpt:
         print(f'   {c}')
