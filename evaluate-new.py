@@ -37,10 +37,10 @@ checkpoints = sorted(checkpoints, key=lambda x: (int(x.split('-shard=')[0].split
 checkpoints_grouped = [checkpoints[x * num_shards:(x + 1) * num_shards] for x in range(len(checkpoints) // num_shards)]  # should have shape (5, 5)
 
 result_dicts = []
-cube = np.array([])
+cube = []
 
 for cv, cpts in enumerate(checkpoints_grouped):
-    square = np.array([])
+    square = []
     print(f'Evaluating on following checkpoints on cv {cv + 1}of{len(checkpoints) // num_shards}:')
     for c in cpts:
         print(f'   {c}')
@@ -70,7 +70,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
 
     result_dict = {}
 
-    line = np.array([])
+    line = []
     for batch, (X, Y) in enumerate(test_dataloader):
 
         X = X.to(device)
@@ -98,7 +98,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
             f'   Overall subgroup metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
         print(f"          True = {Y}")
         print(f"     Predicted = {torch.argmax(logits, dim=1)}")
-        line = np.append(line, top1_acc.item())
+        line.append(top1_acc.item())
         print(line)
         losses.append(loss)
         top1_accs.append(top1_acc)
@@ -117,8 +117,8 @@ for cv, cpts in enumerate(checkpoints_grouped):
             print('-' * 35)
             result_dict[test_groups[batch][0]] = (
             (sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
-            square = np.append(square, np.array([line]))
-            line = np.array([])
+            square.append(line)
+            line = []
             print(square)
 
     loss = 0
@@ -143,13 +143,14 @@ for cv, cpts in enumerate(checkpoints_grouped):
 
     result_dicts.append(result_dict)
     pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv + 1}of{len(checkpoints) // num_shards}.pickle", "wb"))
-    cube = np.append(cube, np.array([square]))
+    cube.append(square)
 
 top1_dicts = [{k: v[0] for k, v in x.items()} for x in result_dicts]
 top2_dicts = [{k: v[1] for k, v in x.items()} for x in result_dicts]
 df1 = pd.DataFrame(top1_dicts)
 df2 = pd.DataFrame(top2_dicts)
 pickle.dump((df1.mean(), df2.mean()), open(f"summaries/{run_dir}-mean.pickle", "wb"))
+cube = np.array(cube)
 print(cube)
 print(f'cube shape: {cube.shape}')
 print(f'cube mean shape: {cube.mean(axis=0).shape}')
