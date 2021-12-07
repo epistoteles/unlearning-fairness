@@ -117,7 +117,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
             print('-' * 35)
             result_dict[test_groups[batch][0]] = (
             (sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
-            square = np.append(square, line)
+            square = np.append(square, np.array([line]))
             line = np.array([])
             print(square)
 
@@ -143,7 +143,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
 
     result_dicts.append(result_dict)
     pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv + 1}of{len(checkpoints) // num_shards}.pickle", "wb"))
-    cube = np.append(cube, square)
+    cube = np.append(cube, np.array([square]))
 
 top1_dicts = [{k: v[0] for k, v in x.items()} for x in result_dicts]
 top2_dicts = [{k: v[1] for k, v in x.items()} for x in result_dicts]
