@@ -98,6 +98,8 @@ for cv, cpts in enumerate(checkpoints_grouped):
             f'   Overall subgroup metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
         print(f"          True = {Y}")
         print(f"     Predicted = {torch.argmax(logits, dim=1)}")
+        line = np.append(line, top1_acc.item())
+        print(line)
         losses.append(loss)
         top1_accs.append(top1_acc)
         top2_accs.append(top2_acc)
@@ -105,7 +107,6 @@ for cv, cpts in enumerate(checkpoints_grouped):
         lengths.append(len(Y))
         ys = torch.cat((ys, Y), dim=0)
         y_preds = torch.cat((y_preds, torch.argmax(logits, dim=1)), dim=0)
-        line = np.append(line, top1_acc.item())
         if batch % 7 == 6:
             print('-' * 35)
             print(f"Average metrics for race '{test_groups[batch][0]}':")
@@ -117,6 +118,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
             result_dict[test_groups[batch][0]] = (
             (sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
             square = np.append(square, line)
+            print(square)
 
     loss = 0
     top1_acc = 0
@@ -147,6 +149,7 @@ top2_dicts = [{k: v[1] for k, v in x.items()} for x in result_dicts]
 df1 = pd.DataFrame(top1_dicts)
 df2 = pd.DataFrame(top2_dicts)
 pickle.dump((df1.mean(), df2.mean()), open(f"summaries/{run_dir}-mean.pickle", "wb"))
+print(cube)
 print(f'cube shape: {cube.shape}')
 print(f'cube mean shape: {cube.mean(axis=0).shape}')
 pickle.dump(cube.mean(axis=0), open(f"summaries/{run_dir}-square.pickle", "wb"))
