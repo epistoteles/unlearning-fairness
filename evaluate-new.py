@@ -147,4 +147,6 @@ top2_dicts = [{k: v[1] for k, v in x.items()} for x in result_dicts]
 df1 = pd.DataFrame(top1_dicts)
 df2 = pd.DataFrame(top2_dicts)
 pickle.dump((df1.mean(), df2.mean()), open(f"summaries/{run_dir}-mean.pickle", "wb"))
+print(f'cube shape: {cube.shape}')
+print(f'cube mean shape: {cube.mean(axis=0).shape}')
 pickle.dump(cube.mean(axis=0), open(f"summaries/{run_dir}-square.pickle", "wb"))
