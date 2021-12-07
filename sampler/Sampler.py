@@ -31,8 +31,6 @@ class Sampler:
 
         self.strategy = strategy
 
-        random.seed(1337)
-
     def get_gdpr_knowledge(self, face):
         probabilities = [self.probabilities[feature][face.__dict__[feature]] for feature in self.strategy]
         return harmonic_mean(probabilities) if probabilities else 0.36

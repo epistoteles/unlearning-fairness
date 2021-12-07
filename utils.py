@@ -39,7 +39,7 @@ def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in=
     test_indices += random.sample(remaining_indices, num_test_samples * 7)
     remaining_indices = [x for x in indices if x not in test_indices]
     if train == 'random':
-        return random_split(remaining_indices, lengths[:-1], random_seed=42) + [test_indices]
+        return random_split(remaining_indices, lengths[:-1], random_seed=random.randint(0, 1000)) + [test_indices]
     elif train == 'sorted':
         high_risk_indices = [x for x in remaining_indices if faces[x].changed_privacy_settings]
         low_risk_indices = [x for x in remaining_indices if not faces[x].changed_privacy_settings]

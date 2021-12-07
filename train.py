@@ -21,7 +21,7 @@ strategy = args.strategy[0]
 put_in = args.put_in[0]
 
 # run_name = random_run_name()
-run_name = f'RX-{strategy}-{put_in}'
+run_name = f'RXX-{strategy}-{put_in}'
 
 cv = 5
 for i in range(cv):

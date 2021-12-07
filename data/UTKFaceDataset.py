@@ -70,9 +70,8 @@ class UTKFaceDataset(Dataset):
                                     num_slices=self.num_slices,
                                     strategy='random-balanced',
                                     put_in='shard',
-                                    random_seed=42)
+                                    random_seed=random.randint(0, 1000))
 
-        random.seed(42)
         if self.split == 'train':
             self.faces = [self.faces[i] for i in indices[current_shard * num_slices + current_slice]]
             random.shuffle(self.faces)
