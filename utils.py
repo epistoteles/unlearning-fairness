@@ -23,7 +23,7 @@ def sequential_split(dataset, lengths):
 def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in='shard', num_slices=1, num_shards=1):
     if lengths[-1] != 6 * 7 * num_test_samples:
         raise ValueError(f'False length of test set: {lengths[-1]}')
-    random.seed(random_seed)
+    random.seed(42)
     indices = range(len(faces))
     test_indices = []
     for race in range(5):
@@ -39,6 +39,7 @@ def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in=
     remaining_indices = [x for x in indices if x not in test_indices]
     test_indices += random.sample(remaining_indices, num_test_samples * 7)
     remaining_indices = [x for x in indices if x not in test_indices]
+    random.seed(random_seed)
     if train == 'random':
         return random_split(remaining_indices, lengths[:-1], random_seed=random.randint(0, 1000)) + [test_indices]
     elif train == 'sorted':

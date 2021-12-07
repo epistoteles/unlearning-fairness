@@ -7,8 +7,10 @@ import matplotlib
 labels = ['random', 'white', 'black', 'asian', 'indian', 'other']
 dicts_monolith = pickle.load(open('summaries/R-random-balanced-slice-mean.pickle', 'rb'))
 dicts_random = pickle.load(open('summaries/RX-random-balanced-shard-mean.pickle', 'rb'))
-dicts_shard = pickle.load(open('summaries/R-sorted-balanced-shard-mean.pickle', 'rb'))
-dicts_slice = pickle.load(open('summaries/R-sorted-balanced-slice-mean.pickle', 'rb'))
+# dicts_shard = pickle.load(open('summaries/R-sorted-balanced-shard-mean.pickle', 'rb'))
+# dicts_slice = pickle.load(open('summaries/R-sorted-balanced-slice-mean.pickle', 'rb'))
+dicts_shard = pickle.load(open('summaries/RXX-sorted-balanced-shard-mean.pickle', 'rb'))
+dicts_slice = pickle.load(open('summaries/RXX-sorted-balanced-slice-mean.pickle', 'rb'))
 
 values = list(map(lambda x: x[0].reindex(index=labels).tolist(), [dicts_monolith, dicts_random, dicts_shard, dicts_slice]))
 legends = ['baseline', 'uniform', 'few shards', 'later slices']
