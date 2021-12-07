@@ -31,7 +31,8 @@ def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in=
             candidates = list(filter(lambda x: x[1].race == race, zip(indices, faces)))
             candidates = list(filter(lambda x: x[1].age_bin == age_bin, candidates))
             if len(candidates) < num_test_samples:
-                raise ValueError(f'Not enough samples with race {race} and age bin {age_bin}: {len(candidates)} < {num_test_samples}')
+                raise ValueError(
+                    f'Not enough samples with race {race} and age bin {age_bin}: {len(candidates)} < {num_test_samples}')
             selected = random.sample(candidates, num_test_samples)
             selected_indices = list(map(lambda x: x[0], selected))
             test_indices += selected_indices
@@ -49,10 +50,10 @@ def balanced_split(faces, lengths, random_seed, num_test_samples, train, put_in=
         train_indices = sequential_split(all_indices, lengths[:-1])
         if put_in == 'slice':
             indices = list(range(len(train_indices)))
-            new_order = [0]*len(train_indices)
+            new_order = [0] * len(train_indices)
             for i in reversed(range(num_slices)):
                 for j in range(num_shards):
-                    new_order[num_slices*j+i] = indices.pop(0)
+                    new_order[num_slices * j + i] = indices.pop(0)
             train_indices = [train_indices[i] for i in new_order]
         return train_indices + [test_indices]
 

@@ -27,6 +27,7 @@ for idx, (v, l, c) in enumerate(zip(values, legends, ['#002a5c', '#005f90', '#00
 lower_rects = []
 # values = list(map(lambda x: np.array(x) / np.array(dicts_monolith[0][:-1].tolist()) - np.ones_like(x), values))  # scaled by monolith
 values = list(map(lambda x: np.array(x) - np.array(dicts_monolith[0].reindex(index=labels).tolist()), values))  # absolute decrease
+# values = [np.array(x) / np.tile(np.array(x[1]), 6) - np.ones_like(x) for x in values]  # normalized by white
 for idx, (v, l) in enumerate(zip(values, legends)):
     rect = ax.bar(loc + width * idx - width * 1.5, v, width, color='darkgrey')
     lower_rects += [rect]
@@ -66,6 +67,6 @@ for _rect in lower_rects:
 plt.rcParams["savefig.bbox"] = 'tight'
 sns.despine(left=True, bottom=True, right=True)
 matplotlib.rcParams['savefig.transparent'] = True
-plt.savefig('plots/results-barchart.png', dpi=600)
+plt.savefig('plots/results-barchart.png', dpi=1200)
 
 plt.show()

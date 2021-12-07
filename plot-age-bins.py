@@ -42,5 +42,5 @@ matplotlib.rcParams['savefig.transparent'] = True
 for text in leg.get_texts():
     text.set_color('#002a5c')
 
-plt.savefig('plots/age-bins.png', dpi=600)
+plt.savefig('plots/age-bins.png', dpi=1200)
 plt.show()
