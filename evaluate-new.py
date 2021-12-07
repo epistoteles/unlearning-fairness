@@ -105,7 +105,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
         lengths.append(len(Y))
         ys = torch.cat((ys, Y), dim=0)
         y_preds = torch.cat((y_preds, torch.argmax(logits, dim=1)), dim=0)
-        line = np.append(line, top1_acc)
+        line = np.append(line, top1_acc.item())
         if batch % 7 == 6:
             print('-' * 35)
             print(f"Average metrics for race '{test_groups[batch][0]}':")
