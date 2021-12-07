@@ -70,8 +70,8 @@ for cv, cpts in enumerate(checkpoints_grouped):
 
     result_dict = {}
 
+    line = np.array([])
     for batch, (X, Y) in enumerate(test_dataloader):
-        line = np.array([])
 
         X = X.to(device)
         Y = Y.to(device)
@@ -118,6 +118,7 @@ for cv, cpts in enumerate(checkpoints_grouped):
             result_dict[test_groups[batch][0]] = (
             (sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
             square = np.append(square, line)
+            line = np.array([])
             print(square)
 
     loss = 0
