@@ -15,8 +15,7 @@ It explores how different strategies using [Sharded, Isolated, Sliced and Aggreg
 
 ## 👁️ Research Poster
 
-For a quick summary of this project, take a look at my resarch poster.
-Click on image below to open it in Google PDF Viewer.
+For a quick summary of this project, take a look at my resarch poster (click on the image below to open it in Google PDF Viewer).
 
 [![poster](poster.png)](https://docs.google.com/viewer?url=https://github.com/epistoteles/unlearning-fairness/raw/master/Unlearning%20Fairness%20Poster.pdf)
 
