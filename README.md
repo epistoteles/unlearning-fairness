@@ -13,7 +13,7 @@ This repository is the result of a research project done for the course **Trustw
 
 It explores how different strategies using [Sharded, Isolated, Sliced and Aggregated (SISA) unlearning](https://arxiv.org/abs/1912.03817) affect model fairness using the example of a facial age classifier and race as protected attribute.
 
-It was implemented in PyTorch using a custom dataset and dataloader. Experiment tracking is done using wandb.
+I reimplemented SISA from scratch in PyTorch using a custom dataset, dataloader and model. Experiment tracking was done using wandb.
 
 ## 👁️ Research Poster
 
