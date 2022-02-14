@@ -11,9 +11,10 @@ import argparse
 import itertools
 import pickle
 import pandas as pd
+import numpy as np
 
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser(description='Evaluate')
 parser.add_argument('run_dir', type=str, nargs=1, help='the run you want to evaluate')
 args = parser.parse_args()
 run_dir = args.run_dir[0]
@@ -33,13 +34,15 @@ print(f'Found {num_shards} shards and {num_slices} slices.')
 checkpoints = [f for f, s in zip(checkpoints, slices) if s == num_slices - 1]
 checkpoints = sorted(checkpoints, key=lambda x: (int(x.split('-shard=')[0].split('of')[0][-1]),  # Xof5
                                                  int(x.split('shard=')[-1].split('-')[0])))  # shard X
-checkpoints_grouped = [checkpoints[x * num_shards:(x + 1) * num_shards] for x in range(len(checkpoints) // num_shards)]
+checkpoints_grouped = [checkpoints[x * num_shards:(x + 1) * num_shards] for x in range(len(checkpoints) // num_shards)]  # should have shape (5, 5)
 
 result_dicts = []
+cube = []
 
-for cv, cpt in enumerate(checkpoints_grouped):
+for cv, cpts in enumerate(checkpoints_grouped):
+    square = []
     print(f'Evaluating on following checkpoints on cv {cv + 1}of{len(checkpoints) // num_shards}:')
-    for c in cpt:
+    for c in cpts:
         print(f'   {c}')
 
     test_data = UTKFaceDataset(split='test', label='age', num_shards=5, num_slices=2, current_shard=0, current_slice=0)
@@ -48,7 +51,7 @@ for cv, cpt in enumerate(checkpoints_grouped):
 
     device = torch.device('cuda')
     models = []
-    for model_index, checkpoint_path in enumerate(cpt):
+    for model_index, checkpoint_path in enumerate(cpts):
         models.append(AgeModelResnet18.load_from_checkpoint(checkpoint_path))
 
     age_bins = [2, 9, 20, 27, 45, 65, 120]
@@ -67,7 +70,9 @@ for cv, cpt in enumerate(checkpoints_grouped):
 
     result_dict = {}
 
+    line = []
     for batch, (X, Y) in enumerate(test_dataloader):
+
         X = X.to(device)
         Y = Y.to(device)
         print(f"Evaluating subgroup {test_groups[batch]} with length {len(X)}")
@@ -93,6 +98,8 @@ for cv, cpt in enumerate(checkpoints_grouped):
             f'   Overall subgroup metrics: loss={loss:.4f}, top1_acc={top1_acc:.4f}, top2_acc={top2_acc:.4f}, macro_f1={macro_f1:.4f}')
         print(f"          True = {Y}")
         print(f"     Predicted = {torch.argmax(logits, dim=1)}")
+        line.append(top1_acc.item())
+        print(line)
         losses.append(loss)
         top1_accs.append(top1_acc)
         top2_accs.append(top2_acc)
@@ -110,6 +117,9 @@ for cv, cpt in enumerate(checkpoints_grouped):
             print('-' * 35)
             result_dict[test_groups[batch][0]] = (
             (sum(top1_accs[-7:]) / 7).item(), (sum(top2_accs[-7:]) / 7).item())  # {race: (top1_acc, top2_acc)}
+            square.append(line)
+            line = []
+            print(square)
 
     loss = 0
     top1_acc = 0
@@ -133,9 +143,15 @@ for cv, cpt in enumerate(checkpoints_grouped):
 
     result_dicts.append(result_dict)
     pickle.dump(result_dict, open(f"summaries/{run_dir}-{cv + 1}of{len(checkpoints) // num_shards}.pickle", "wb"))
+    cube.append(square)
 
 top1_dicts = [{k: v[0] for k, v in x.items()} for x in result_dicts]
 top2_dicts = [{k: v[1] for k, v in x.items()} for x in result_dicts]
 df1 = pd.DataFrame(top1_dicts)
 df2 = pd.DataFrame(top2_dicts)
 pickle.dump((df1.mean(), df2.mean()), open(f"summaries/{run_dir}-mean.pickle", "wb"))
+cube = np.array(cube)
+print(cube)
+print(f'cube shape: {cube.shape}')
+print(f'cube mean shape: {cube.mean(axis=0).shape}')
+pickle.dump(cube.mean(axis=0), open(f"summaries/{run_dir}-square.pickle", "wb"))
