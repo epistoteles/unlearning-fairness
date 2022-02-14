@@ -13,6 +13,8 @@ This repository is the result of a research project done for the course **Trustw
 
 It explores how different strategies using [Sharded, Isolated, Sliced and Aggregated (SISA) unlearning](https://arxiv.org/abs/1912.03817) affect model fairness using the example of a facial age classifier and race as protected attribute.
 
+It was implemented in PyTorch using a custom dataset and dataloader. Experiment tracking is done using wandb.
+
 ## 👁️ Research Poster
 
 For a quick summary of this project, take a look at my resarch poster (click on the image below to open it in Google PDF Viewer).
@@ -30,7 +32,11 @@ python3 train.py --num_shards 5 --num_slices 3 --strategy random-balanced --put_
 ```
 meaning you are training a SISA model with 5 shards (3 slices each) using a sorted balanced sampling strategy that puts high-unlearning-likelihood samples in later slices.
 
-The results over all 5 folds will be logged on wandb and written as a pickled summary to `summaries/`.
+Evaluate your run with
+```
+python3 evaluate.py --run_dir <your-run-name>
+```
+The results over all 5 folds will be written as a pickled summary to `summaries/`.
 
 
 ## ⚠️ License
