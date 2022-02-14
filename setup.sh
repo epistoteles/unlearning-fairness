@@ -18,12 +18,11 @@ tar -xvzf 'data/UTKFace.tar.gz' -C ./
 rm /data
 
 # clone code repository
-git clone https://epistoteles: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@github.com/epistoteles/unlearning-fairness.git
+git clone https://yourusername:youraccesstoken@github.com/epistoteles/unlearning-fairness.git
 mv UTKFace unlearning-fairness/UTKFace
 cd unlearning-fairness/ || return
-git config user.email "korbinian-koch@web.de"
-git config user.name "epistoteles"
-# git pull https://epistoteles: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@github.com/epistoteles/unlearning-fairness.git
+git config user.email "your.github.email@mail.com"
+git config user.name "your.github.username"
 
 # install requirements
 pip3 install -r requirements.txt
